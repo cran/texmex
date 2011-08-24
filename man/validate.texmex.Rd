@@ -1,6 +1,7 @@
 \name{validate.texmex}
 \alias{validate.texmex}
 \alias{test.gpd}
+\alias{test.bootgpd}
 \alias{test.mex}
 \alias{test.bootmex}
 \alias{test.gpdRangeFit}
@@ -23,6 +24,7 @@
 \alias{test.chi}
 \alias{test.copula}
 \alias{test.dgpd}
+\alias{test.info.gpd}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Validate the texmex package

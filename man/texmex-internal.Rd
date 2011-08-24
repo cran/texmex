@@ -7,6 +7,7 @@
 \alias{revGumbel}
 \alias{mexGumbel}
 \alias{gpd.fit}
+\alias{info.gpd}
 \title{Internal functions for \code{texmex}}
 \description{Internal functions used by the \code{texmex} package.}
 
@@ -14,22 +15,23 @@
 hist.gpd(x, xlab, ylab, main, ...)
 rl.gpd(object, alpha = 0.05, xlab, ylab, main, pch=1, col=2, cex=0.75,
        linecol=4, cicol=0, polycol=15, smooth=TRUE)
-qqgpd(object, nsim = 1000, alpha = 0.05, xlab, ylab, main, plot = TRUE,
-     ylim = "auto", pch=1, col = 2, cex = 0.75, linecol = 4, cicol = 0,
-     polycol = 15, smooth = TRUE)
+qqgpd(object, nsim = 1000, alpha = 0.050, xlab, ylab, main, plot = TRUE,
+     ylim = "auto", pch=1, col = 2, cex = 0.75, linecol = 4, intcol = 0,
+     polycol = 15)
 ppgpd(object, nsim = 1000, alpha = 0.05, xlab, ylab, main,
-     pch=1, col = 2, cex = 0.75, linecol = 4, cicol = 0,
+     pch=1, col = 2, cex = 0.75, linecol = 4, intcol = 0,
      polycol = 15, smooth = TRUE)
 u2gpd(u, p=1, th=0, sigma, xi)
 mexGumbel(x, method = "mixture", divisor = "n+1", na.rm=TRUE)
 revGumbel(x, data, qu, th=0, sigma=1, xi=0, method="mixture")
 gpd.fit(y, th, X.phi, X.xi, penalty="none", start=NULL,
-        priorParameters = NULL, maxit = 10000, trace = 0)
+        priorParameters = NULL, maxit = 10000, trace = 0, hessian = TRUE)
+info.gpd(o, method = "observed")
 }
 
 \arguments{
 \item{x, object, data}{Object to be used by plot functions, vector to be converted.}
-\item{xlab, ylab, ylim, main, pch, col, cex, linecol, cicol, polycol, ...}{Arguments to plot functions.}
+\item{xlab, ylab, ylim, main, pch, col, cex, linecol, cicol, intcol, polycol, ...}{Arguments to plot functions.}
 \item{smooth}{Whether or not to smooth simulated confidence intervlas. 
     Defaults to \code{smooth = TRUE}.}
 \item{alpha}{Control nominal coverage of condfidence intervals. Defaults to \code{alpha = 0.05}.}
@@ -37,14 +39,18 @@ gpd.fit(y, th, X.phi, X.xi, penalty="none", start=NULL,
 \item{plot}{Whether or not to plot the result.}
 \item{u}{Uniform numbers to be converted to GPD numbers.}
 \item{p, th, qu, sigma, xi}{Paramters of GPD distribution.}
-\item{method}{How to convert. When \code{method = 'mixture'}, the upper tail of the
+\item{method}{In \code{mexGumbel}, how to convert. When \code{method = 'mixture'}, the upper tail of the
     distribution is modelled using a generalized Pareto distribution and the remainder
-    is approximated using the empirical distribution. }
+    is approximated using the empirical distribution. In \code{info.gpd}, how
+    to compute the information matrix. Only "observed" is implemented. }
 \item{divisor}{Divisor used in estimation of empirical distribution.}
 \item{na.rm}{Whether or not to remove missing values.}
 \item{y, X.phi, X.xi, penalty, start, priorParameters, maxit, trace}{Arguments
     supplied to \code{gpd}, \code{migpd} or \code{mex}, or inferred from
     those functions after some preprocessing.}
+\item{o}{The object returned by \code{gpd.fit}}
+\item{hessian}{Whether or not to return the numerically estimated Hessian.
+      Defaults to \code{TRUE}.}
 }
 \details{
 None of these functions are intended to be used explicitly.

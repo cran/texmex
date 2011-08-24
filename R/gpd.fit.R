@@ -1,7 +1,7 @@
 gpd.fit <- function(y, th, X.phi, X.xi, penalty="none", start=NULL,
-        priorParameters = NULL, maxit = 10000, trace = 0) {
+        priorParameters = NULL, maxit = 10000, trace = 0, hessian=TRUE) {
 
-    gpd.lik <- function(par, y, th, X.phi, X.xi, penalty = "none", 
+   gpd.lik <- function(par, y, th, X.phi, X.xi, penalty = "none", 
         priorParameters = NULL) {
         keepsc <- par[1:ncol(X.phi)]
         keepxi <- par[-(1:ncol(X.phi))]
@@ -37,9 +37,12 @@ gpd.fit <- function(y, th, X.phi, X.xi, penalty="none", start=NULL,
         start <- c(log(mean(y)), rep(1e-05, -1 + ncol(X.phi) + ncol(X.xi)))
     }
 
+	s <- c(apply(X.phi, 2, sd), apply(X.xi, 2, sd))
+	s[s == 0] <- 1
     o <- optim(par = start, fn = gpd.lik, y = y, X.phi = X.phi, 
         X.xi = X.xi, th = th, penalty = penalty, control = list(maxit = maxit, 
-            trace = trace), priorParameters = priorParameters, 
-        hessian = TRUE)
+            trace = trace, parscale=s), priorParameters = priorParameters, 
+        hessian = hessian)
+
     invisible(o)
 }

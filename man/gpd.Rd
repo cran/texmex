@@ -13,6 +13,7 @@
 \alias{coef.bgpd}
 \alias{coefficients.bgpd}
 \alias{print.summary.bgpd}
+\alias{show.summary.bgpd}
 \alias{print.summary.gpd}
 \alias{show.summary.gpd}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -22,9 +23,9 @@ Pareto distribution, possibly with explanatory variables.
 }
 \usage{
 gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
-    prior = "gaussian", method = "optimize", start = NULL, priorParameters = NULL,
+    prior = "gaussian", method = "optimize", cov="observed", start = NULL, priorParameters = NULL,
     maxit = 10000, trace = NULL,
-    iter = 10500, burn = 500, thin = 1, jump.const, verbose = TRUE)
+    iter = 10500, burn = 500, thin = 1, jump.cov, jump.const, verbose = TRUE)
 \method{print}{gpd}(x, digits=max(3, getOption("digits") - 3), ...)
 \method{show}{gpd}(x, digits=max(3, getOption("digits") - 3), ...)
 \method{summary}{gpd}(object, nsim=1000, alpha=0.05, ...)
@@ -37,9 +38,10 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
 \method{plot}{bgpd}(x, which.plots=1:3, density.adjust=2, print.seed=FALSE, ...)
 \method{coef}{bgpd}(object, ...)
 \method{coefficients}{bgpd}(object, ...)
-\method{print}{summary.gpd}(x, dig=3, ...)
+\method{print}{summary.gpd}(x, digits=3, ...)
 \method{print}{summary.bgpd}(x, ...)
-\method{show}{summary.gpd}(x, dig=3, ...)
+\method{print}{summary.bgpd}(x, ...)
+\method{show}{summary.gpd}(x, digits=3, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -52,8 +54,9 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   \item{xi}{ Formula for the shape parameter. Defaults to
       \code{phi = ~ 1} - i.e. no covariates. }
   \item{penalty}{ How to penalize the likelhood. Currently, either
-     ``none'', ``gaussian'' or ``lasso'' are the only allowed arguments.
-     See the information on the \code{prior} argument, below.}
+     ``none'', ``gaussian'' or ``lasso'' are the only allowed arguments. 
+     If \code{penalty} is "gaussian" or "lasso" then the parameters for 
+     the penalization are specified through the \code{prior} argument, see below.}
   \item{prior}{If \code{method = "optimize"}, just an alternative way of
      specifying the pentalty, and only one or neither of \code{penalty}
      and \code{prior} should be given. If \code{method = "simulate"},
@@ -65,15 +68,28 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
      and point estimates (either ML or MAP estimates) are returned with other
      information. If ``simulate'', a Metropolis algorithm is used to simulate
      from the joint posterior distribution of the parameters.}
+  \item{cov}{How to compute the covariance matrix of the parameters. Defaults to
+        \code{cov = "observed"} in which case the observed information matrix
+        is used, as given in Appendix A of Davison and Hinkley. The only other
+        option is \code{cov = "numeric"} in which case a numerical approximation
+        of the Hessian is used (see the help for \code{optim}). In some cases,
+        particularly with small samples, the numerical approximation can be
+        quite different from the closed form (\code{cov="observed"}) result, and the value derived from 
+        the observed information should be preferred. However, in either case, since the 
+        underlying log-likelihood may be far from quadratic for small samples, 
+        the resulting estimates of standard errors are liable to approximate 
+        poorly the true standard errors. Also see the comments in
+        the Details section, below.}
   \item{start}{Starting values for the parameters, to be passed to \code{optim}.
            If not provided, an exponential distribution is assumed as the starting
            point.}
   \item{priorParameters}{  A list with two components. The first should be 
                 a vector of means, the second should be a covariance matrix if the 
-                penalty/prior is "gaussian" and a precision matrix is the penalty is "lasso".
-                These represent the parameters in the Gaussian prior distribution.
+                penalty/prior is "gaussian" or "quadratic" and a diagonal precision matrix 
+                if the penalty/prior is "lasso", "L1" or "Laplace".
+                If \code{method = "simulate"} then these represent the parameters in the Gaussian prior distribution.
                 If not supplied: all default prior means are zero;
-                all default prior variances are $10^4$;all covariances
+                all default prior variances are $10^4$; all covariances
                 are zero.  }
   \item{maxit}{ The number of iterations allowed in \code{optim} }
   \item{trace}{ Whether or not to print progress to screen. If \code{method = "optimize"},
@@ -86,10 +102,11 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   \item{thin}{ The degree of thinning of the resulting Markov chains. Defaults
                to 1 (no thinning). A value of 0.5 (for example) would result in
                every other step being discarded. }
+  \item{jump.cov}{Covariance matrix for proposal distribution of Metropolis algorithm.  This is scaled by \code{jump.const}.}
   \item{jump.const}{ Control parameter for the Metropolis algorithm. }
   \item{verbose}{Whether or not to print progress to screen. Defaults to
                 \code{verbose=TRUE}.}
-  \item{x, object}{Object of class \code{gpd}, \code{bgpd}, \code{summary.gpd}
+ \item{x, object}{Object of class \code{gpd}, \code{bgpd}, \code{summary.gpd}
                    or \code{summary.bgpd} returned by \code{gpd} or \code{summary.gpd}.}
   \item{digits}{Number of digits for printing.}
   \item{main}{Titles for plots. Should be a vector of length 4.}
@@ -109,7 +126,6 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   \item{density.adjust}{Passed into \code{density}. Controls the amount of
                      smoothing of the kernel density estimate. Defaults to
                      \code{density.adjust=2}.}
-  \item{dig}{Number of digits to print.}
   \item{...}{Further arguments to be passed to methods.}
 }
 \details{
@@ -138,6 +154,15 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   The region is a (1 - alpha)\% region based on \code{nsim} simulated
   samples.
 
+  When there are estimated values of \code{xi <= 0.5}, the regularity
+  conditions of the likelihood break down and inference based on approximate
+  standard errors cannot be performed. In this case, the most fruitful
+  approach to inference appears to be by the bootstrap. It might be possible
+  to simulate from the posterior, but finding a good proposal distribution
+  might be difficult and you should take care to get an acceptance rate
+  that is reasonably high (around 40\% when there are no covariates, lower
+  otherwise). 
+  
   If \code{start} is not provided, the maximum penalized likelhood point
   estimates are computed and used.
 
@@ -190,7 +215,7 @@ are also returned by the \code{coef} method. Depending on what you
     \item{param}{The remainder of the chain after deleting the burn-in
                  and applying any thinning.}
     \item{X.phi}{The design matrix for the log of the scale parameter.}
-    \item{X.xi}{The design matrix for the log of the scale parameter.}
+    \item{X.xi}{The design matrix for the log of the shape parameter.}
     \item{acceptance}{The proportion of proposals that were accepted by
                       the Metropolis algorithm.}
     \item{seed}{The seed used by the random number generator.}
@@ -198,6 +223,10 @@ are also returned by the \code{coef} method. Depending on what you
 }
 
 \author{Janet E Heffernan, Harry Southworth}
+
+\references{A. C. Davison and R. L. Smith, Models for exceedances over
+            high thresholds, Journal of the Royal Statistical Society B,
+            53, 393 -- 442, 1990}
 
 \examples{
   x <- rnorm(1000)
