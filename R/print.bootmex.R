@@ -11,8 +11,9 @@ function(x , ... ){
   eff <- sum(wh)
 
   cat( paste("Dependence structure estimation successful for", eff, "effective samples.\n" ) )
-  cat( paste("Dependence structure bootstrap mean parameter estimates:\n" ))
+#  cat( paste("Dependence structure bootstrap mean parameter estimates:\n" ))
   cat("\n")
   invisible()
 }
 
+`show.bootmex` <- print.bootmex

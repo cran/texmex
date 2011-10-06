@@ -31,7 +31,9 @@ function(p , sigma, xi, u = 0, lower.tail=TRUE, log.p=FALSE ){
 }
 
 test.qgpd <- function(){
-
+  
+  set.seed(201110101)
+  
   myTest <- function(sig,xi,thresh,msg){
     myq <- sapply(1:nreps,function(i) qgpd(x[,i], sig[i], xi[i], u=thresh[i]))
     myp <- sapply(1:nreps,function(i) pgpd(myq[,i], sig[i], xi[i], u=thresh[i]))
@@ -42,12 +44,14 @@ test.qgpd <- function(){
 
 #*************************************************************
 # 6.4.0 Test exception for out of range probabilties
-  
+  op <- options()
+  options(show.error.messages=FALSE)
   checkException(qgpd(1,1,0,2),msg="qgpd: exception for out of range prob")
   checkException(qgpd(1.5,1,0,2),msg="qgpd: exception for out of range prob")
   checkException(qgpd(0,1,0,2),msg="qgpd: exception for out of range prob")
   checkException(qgpd(-1,1,0,2),msg="qgpd: exception for out of range prob")
-
+  options(op)
+  
 #*************************************************************
 # 6.4. Test qgpd. Note that .evd.qgpd is NOT vectorized.
 

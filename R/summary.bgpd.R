@@ -12,3 +12,4 @@ print.summary.bgpd <- function(x, ...){
    invisible()
 }
 
+show.summary.bgpd <- print.summary.bgpd

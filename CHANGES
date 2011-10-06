@@ -15,3 +15,17 @@ Changes from version 1.0:
 6. print.summary.predict.mex was showing too many decimal places. Fixed
 7. validate.texmex failed on Windows due to / in file path (all tests still
    passed if executed individually). Fixed.
+
+---------------------------------- Version 1.2 ------------------------------------
+Changes from version 1.1:
+
+1. rl.gpd had a bug in the way it computed standard errors. Fixed.
+2. Original Heffernan-Tawn methodology used Gumbel marginal distributions.
+   Keef-Tawn-Papastathopoulos modified this to Laplace margins and identified 
+   constraints that keep the model physically plausible. The modified and
+   constrained approach is implemented and is now the default.
+3. Diagnostic plot of constrained Profile Log-likelihood surface added, to 
+   help users check for convergence to mle on constrained parameter space.
+4. New diagnostic plots for GPD models when there are covariates, as 
+   part of the plot method for a gpd object.
+5. A returned gpd object now has residuals attached.

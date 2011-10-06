@@ -3,6 +3,9 @@ function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
    trace = 0, verbose=FALSE, priorParameters = NULL)
 {
    theCall <- match.call()
+   if(is.null(colnames(data))){
+    colnames(data) <- paste(rep("Column",ncol(data)),1:ncol(data),sep="")
+  }
    d <- dim(data)[2]
    if (missing(mth) & missing(mqu))
        stop("you must provide one of mth or mqu")
@@ -52,7 +55,6 @@ function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
    names(mth) <- names(mqu) <- dimnames(data)[[2]]
    res <- list(call = theCall, models = modlist, data = data,
        mth = mth, mqu = mqu, penalty = penalty, priorParameters = priorParameters)
-   res <- mexGumbel(res)
    oldClass(res) <- "migpd"
    invisible(res)
 }
@@ -84,7 +86,6 @@ test.migpd <- function(){
 # check excecution for 2-d data
 
   wavesurge.fit <- migpd(wavesurge,mq=.7)
-  checkEqualsNumeric(dim(wavesurge.fit$gumbel),dim(wavesurge),msg="migpd: 2-d data, gumbel data dimension")
   checkEqualsNumeric(wavesurge.fit$models$wave$loglik,gpd(wavesurge$wave,qu=0.7)$loglik,
                      tol=0.001,msg="migpd: 2-d data gpd fit wave")
   

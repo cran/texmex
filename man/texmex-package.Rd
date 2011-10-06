@@ -13,8 +13,8 @@ of Heffernan and Tawn, 2004.
 \tabular{ll}{
 Package: \tab mex\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2008-12-06\cr
+Version: \tab 1.2\cr
+Date: \tab 2011-10-06\cr
 License: \tab GPL (>=2) | BSD\cr
 }
 \code{\link{gpd}}: Fit generalized Pareto distributions to data, possibly with
@@ -23,14 +23,14 @@ License: \tab GPL (>=2) | BSD\cr
             distribution.
 
 \code{\link{mex}}: Fit multiple, independent generalized Pareto models
-            to the columns of a data set, and estimate the conditional
-            dependence structure using the method of Heffernan and
+            to the the upper tails of the columns of a data set, and estimate the conditional
+            dependence structure between the columns using the method of Heffernan and
             Tawn.
 
 \code{\link{bootmex}}: Bootstrap estimation for parameters in generalized Pareto models
                 and in the dependence structure.
 
-\code{\link{validate.texmex}}: Use the \code{svUnit} package to run lots of tests to
+\code{\link{validate.texmex}}: Use the \code{RUnit} package to run lots of tests to
             establish a high degree of confidence that the functions do what
             they are supposed to.
 }
@@ -50,9 +50,9 @@ J. E. Heffernan and J. A. Tawn, A conditional approach
 \keyword{package}
 \examples{
 # Analyse the winter data used by Heffernan and Tawn
-mymex <- mex(winter, mqu = .7, penalty="none")
+mymex <- mex(winter, mqu = .7, penalty="none", dqu=.7, which = "NO")
 plot(mymex)
-myboot <- bootmex(mymex, dqu=.7, which = "NO")
+myboot <- bootmex(mymex)
 plot(myboot)
 mypred <- predict(myboot,  pqu=.95)
 summary(mypred , probs = c( .025, .5, .975 ))
@@ -75,7 +75,7 @@ Bmex <- mex(r[liver$dose == "B",], mqu=.7)
 Cmex <- mex(r[liver$dose == "C",], mqu=.7)
 Dmex <- mex(r[liver$dose == "D",], mqu=.7)
 
-par(mfcol=c(2,3))
+par(mfcol=c(3,3))
 plot(Amex)
 
 plot(Dmex, col="blue")

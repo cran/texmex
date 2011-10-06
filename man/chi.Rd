@@ -17,7 +17,7 @@ chi(data, nq = 100, qlim = NULL, alpha = 0.05, trunc = TRUE)
                    main1="Chi", main2="Chi Bar", xlab="Quantile",
                    ylab1=expression(chi),
                    ylab2=expression(bar(chi)),
-                   ask=nb.fig < length(which) && dev.interactive(), ...)
+                   ask, ...)
 }
 \arguments{
   \item{data}{ A matrix containing 2 numeric columns. }
@@ -35,7 +35,7 @@ chi(data, nq = 100, qlim = NULL, alpha = 0.05, trunc = TRUE)
   \item{which}{Which plot to do: 1 results in a plot of chi, 2 in a 
                plot of chi bar. Defaults to \code{which = 1:2}.}
   \item{lty, cilty, col, cicol}{Line types and colours for the the
-               estimated quantities and thier confidence intervals.}
+               estimated quantities and their confidence intervals.}
   \item{xlim, ylim1, ylim2}{Limits for the axes.}
   \item{main1, main2}{Main titles for the plots.}
   \item{xlab, ylab1, ylab2}{Axis labels for the plots.}
@@ -59,7 +59,7 @@ chi(data, nq = 100, qlim = NULL, alpha = 0.05, trunc = TRUE)
               confidence limits.}
   \item{quantile}{The quantiles at which chi and chi-bar were
                   evaluated.}
-  \item{chiulb, chibarulb}{Uppwer and lower bounds for chi and chi-bar.}
+  \item{chiulb, chibarulb}{Upper and lower bounds for chi and chi-bar.}
 }
 \references{ S. Coles, J. E. Heffernan and J. A. Tawn, Dependence
 measures for extreme values analyses, Extremes, 2, 339 -- 365, 1999 }

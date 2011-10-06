@@ -13,7 +13,7 @@ function( x, pch=c( 1, 3 ), col=c( 2, 8 ), cex=c( 1, 1 ), ask = TRUE, ... ){
 
 	xdat <- x$data$real[, 1 ]
   upts <- seq(from =0.001,to=1-0.0001,len=100)
-  xpts <- revGumbel(upts,data=x$data$real[, 1 ], qu = mean(x$data$real[,1] < x$mth[1]), th=x$mth[1],sigma = x$gpd.coef[3,1], xi = x$gpd.coef[4,1])
+  xpts <- revTransform(upts,data=x$data$real[, 1 ], qu = mean(x$data$real[,1] < x$mth[1]), th=x$mth[1],sigma = x$gpd.coef[3,1], xi = x$gpd.coef[4,1])
 
 	for( i in 2:( dim( x$data$real )[[ 2 ]] ) ){
 		ydat <- x$data$real[, i ]
@@ -29,7 +29,7 @@ function( x, pch=c( 1, 3 ), col=c( 2, 8 ), cex=c( 1, 1 ), ask = TRUE, ... ){
 				col=col[ 2 ] , pch=pch[ 2 ], cex=cex[ 2 ] )
 		points( xdat, ydat , pch=pch[ 1 ], col=col[ 1 ], cex= cex[ 1 ] )
 		abline( v = x$data$pth, lty=2, col="blue" )   
-    ypts <- revGumbel(upts,data=x$data$real[, i ], qu = mean(x$data$real[,i] < x$mth[i]), th=x$mth[i],sigma = x$gpd.coef[3,i], xi = x$gpd.coef[4,i])
+    ypts <- revTransform(upts,data=x$data$real[, i ], qu = mean(x$data$real[,i] < x$mth[i]), th=x$mth[i],sigma = x$gpd.coef[3,i], xi = x$gpd.coef[4,i])
     lines(xpts,ypts,col="blue")
 	}
 	
@@ -38,8 +38,8 @@ function( x, pch=c( 1, 3 ), col=c( 2, 8 ), cex=c( 1, 1 ), ask = TRUE, ... ){
 
 test.plot.predict.mex <- function(){
 # check reproduce Figure 6 in Heffernan and Tawn
-  w <- migpd(winter,mqu=0.7,penalty="none")
-  noMod <- bootmex(w, wh="NO", dqu=.7)  
+  w <- mex(winter,mqu=0.7,penalty="none", wh="NO", dqu=.7, margins="gumbel", constrain=FALSE)
+  noMod <- bootmex(w)  
   noPred <- predict(noMod)
   par(mfcol=c(2,2))
   res <- plot(noPred,main="Fig. 6 Heffernan and Tawn (2004)")
@@ -48,8 +48,8 @@ test.plot.predict.mex <- function(){
 # check for 2-d data
   R <- 20
   nsim <- 100
-  wavesurge.fit <- migpd(wavesurge,mq=.7)
-  wavesurge.boot <- bootmex(wavesurge.fit,which=1,R=R)
+  wavesurge.mex <- mex(wavesurge,mq=.7,which=1, margins="laplace")
+  wavesurge.boot <- bootmex(wavesurge.mex,R=R)
   wavesurge.pred <- predict(wavesurge.boot,nsim=nsim)
   par(mfrow=c(1,1))
   res <- plot(wavesurge.pred)

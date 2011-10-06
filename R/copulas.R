@@ -53,11 +53,18 @@ summary.copula <- function(object, ...){
     invisible()
 }
 
-plot.copula <- function(x, jitter.=FALSE, ...){
+plot.copula <- function(x, jitter. = FALSE, jitter.factor=1, ...){
     x <- x$copula
-    if (jitter.){
-        x <- apply(x, 2, jitter)
+    
+    thecall <- match.call()
+    jitter. <- FALSE
+    if (is.element("jitter.", names(thecall))){
+    	jitter. <- thecall[["jitter."]]
     }
+    
+	if (jitter.){
+		x <- apply(x, 2, jitter, factor=jitter.factor)
+	}
     pairs(x, ...)
     invisible()
 }
@@ -74,6 +81,10 @@ test.copula <- function(){
 
   checkEqualsNumeric(d2,copula(u2)$copula,msg="copula: 2 dimensional")
   checkEqualsNumeric(d3,copula(u3)$copula,msg="copula: 3 dimensional")
+  
+  op <- options()
+  options(show.error.messages=FALSE)
   checkException(copula(TRUE),msg="copula: exception")
   checkException(copula("text"),msg="copula: exception")
+  options(op)
 }
