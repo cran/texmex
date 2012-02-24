@@ -1,54 +1,45 @@
 \name{gpd}
 \alias{gpd}
+\alias{gpd.default}
 \alias{print.gpd}
 \alias{show.gpd}
 \alias{summary.gpd}
 \alias{plot.gpd}
 \alias{coef.gpd}
 \alias{AIC.gpd}
-\alias{coefficients.gpd}
 \alias{print.bgpd}
-\alias{summary.bgpd}
 \alias{plot.bgpd}
-\alias{coef.bgpd}
-\alias{coefficients.bgpd}
-\alias{print.summary.bgpd}
-\alias{show.summary.bgpd}
-\alias{print.summary.gpd}
-\alias{show.summary.gpd}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Generalized Pareto distribution modelling }
 \description{Likelihood based modelling and inference for the generalized
 Pareto distribution, possibly with explanatory variables.
 }
 \usage{
-gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
-    prior = "gaussian", method = "optimize", cov="observed", start = NULL, priorParameters = NULL,
-    maxit = 10000, trace = NULL,
-    iter = 10500, burn = 500, thin = 1, jump.cov, jump.const, verbose = TRUE)
+gpd(y, data, ...)
+
+\method{gpd}{default}(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
+    prior = "gaussian", method = "optimize", cov="observed", start = NULL, 
+    priorParameters = NULL, maxit = 10000, trace = NULL,
+    iter = 40500, burn = 500, thin = 4,
+    proposal.dist = c("gaussian", "cauchy"),
+    jump.cov, jump.const, verbose = TRUE,...)
+
 \method{print}{gpd}(x, digits=max(3, getOption("digits") - 3), ...)
-\method{show}{gpd}(x, digits=max(3, getOption("digits") - 3), ...)
 \method{summary}{gpd}(object, nsim=1000, alpha=0.05, ...)
-\method{coef}{gpd}(object, ...)
+\method{show}{gpd}(x, digits=max(3, getOption("digits") - 3), ...)
+
 \method{plot}{gpd}(x, main=rep(NULL, 4), xlab=rep(NULL, 4), nsim=1000, alpha=0.05, ...)
+
 \method{AIC}{gpd}(object, ..., k=2)
-\method{coefficients}{gpd}(object, ...)
+
 \method{print}{bgpd}(x, print.seed=FALSE, ...)
-\method{summary}{bgpd}(object, ...)
 \method{plot}{bgpd}(x, which.plots=1:3, density.adjust=2, print.seed=FALSE, ...)
-\method{coef}{bgpd}(object, ...)
-\method{coefficients}{bgpd}(object, ...)
-\method{print}{summary.gpd}(x, digits=3, ...)
-\method{print}{summary.bgpd}(x, ...)
-\method{print}{summary.bgpd}(x, ...)
-\method{show}{summary.gpd}(x, digits=3, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{y}{ Either a numeric vector or the name of a variable in \code{data}. }
-  \item{data}{ A data object containing \code{y} and any covariates. }
+  \item{data}{ A data frame containing \code{y} and any covariates. }
   \item{th}{ The threshold for \code{y}, exceedances above which will be used to fit the GPD upper tail model. }
-  \item{qu}{An alternative to \code{th}, specifying the quantile of the \code{y}.}
+  \item{qu}{An alternative to \code{th}, a probability defined such that \code{quantile(y,qu)} equals \code{th}.}
   \item{phi}{ Formula for the log of the scale parameter. Defaults to
       \code{phi = ~ 1} - i.e. no covariates. }
   \item{xi}{ Formula for the shape parameter. Defaults to
@@ -70,7 +61,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
      from the joint posterior distribution of the parameters.}
   \item{cov}{How to compute the covariance matrix of the parameters. Defaults to
         \code{cov = "observed"} in which case the observed information matrix
-        is used, as given in Appendix A of Davison and Hinkley. The only other
+        is used, as given in Appendix A of Davison and Smith. The only other
         option is \code{cov = "numeric"} in which case a numerical approximation
         of the Hessian is used (see the help for \code{optim}). In some cases,
         particularly with small samples, the numerical approximation can be
@@ -81,7 +72,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
         poorly the true standard errors. Also see the comments in
         the Details section, below.}
   \item{start}{Starting values for the parameters, to be passed to \code{optim}.
-           If not provided, an exponential distribution is assumed as the starting
+           If not provided, an exponential distribution (shape = 0) is assumed as the starting
            point.}
   \item{priorParameters}{  A list with two components. The first should be 
                 a vector of means, the second should be a covariance matrix if the 
@@ -97,11 +88,13 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
        function. If \code{method = "simulate"}, the argument determines at
        how many steps of the Markov chain the function should tell the user, and
        in this case it defaults to \code{trace = 1000}. }
-  \item{iter}{Number of simulations to generate under \code{method = "simulate"}.}
+  \item{iter}{Number of simulations to generate under \code{method = "simulate"}.
+              Defaults to 40000.}
   \item{burn}{ The number of initial steps to be discarded. }
   \item{thin}{ The degree of thinning of the resulting Markov chains. Defaults
-               to 1 (no thinning). A value of 0.5 (for example) would result in
-               every other step being discarded. }
+               to 4 (one in every 4 steps is retained).}
+  \item{proposal.dist}{The proposal distribution to use, either
+    multivariate gaussian or a multivariate Cauchy.}
   \item{jump.cov}{Covariance matrix for proposal distribution of Metropolis algorithm.  This is scaled by \code{jump.const}.}
   \item{jump.const}{ Control parameter for the Metropolis algorithm. }
   \item{verbose}{Whether or not to print progress to screen. Defaults to
@@ -109,19 +102,19 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
  \item{x, object}{Object of class \code{gpd}, \code{bgpd}, \code{summary.gpd}
                    or \code{summary.bgpd} returned by \code{gpd} or \code{summary.gpd}.}
   \item{digits}{Number of digits for printing.}
-  \item{main}{In \code{plot} method, titles for diagnostic plots. Should be a vector of length 4, with values corresponding to the character strings to appear on the titles of the pp- qq- return level and density estimate plots respectively.}
+  \item{main}{In \code{plot} method for class \code{gpd}, titles for diagnostic plots. Should be a vector of length 4, with values corresponding to the character strings to appear on the titles of the pp- qq- return level and density estimate plots respectively.}
   \item{xlab}{As for \code{main} but labels for x-axes rather than titles.}
-  \item{nsim}{In \code{plot} and \code{summary} methods. The number of replicates to be simulated to produce the simulated tolerance intervals. Defaults to \code{nsim = 1000}}.
-  \item{alpha}{In \code{plot} and \code{summary} methods. A (1 - alpha)\% simulation envelope is produced. Defaults to \code{alpha = 0.05}}
+  \item{nsim}{In \code{plot} and \code{summary} methods for class \code{gpd}. The number of replicates to be simulated to produce the simulated tolerance intervals. Defaults to \code{nsim = 1000}}.
+  \item{alpha}{In \code{plot} and \code{summary} methods for class \code{gpd}. A (1 - alpha)\% simulation envelope is produced. Defaults to \code{alpha = 0.05}}
   \item{k}{Constant used in calculation of AIC=-2*loglik + k*p, defaults to \code{k=2}.}
   \item{print.seed}{Whether or not to print the seed used in the simulations,
                     or to annotate the plots with it. Defaults to
                     \code{print.seed=FALSE}.}
-  \item{which.plots}{Which plots to produce. Option 1 gives kernel density estimates,
+  \item{which.plots}{In \code{plot} method for class \code{bgpd}. Which plots to produce. Option 1 gives kernel density estimates,
                      2 gives traces of the Markov chains with superimposed
                      cumulative means, 3 gives autocorrelation functions.
                      Defaults to \code{which.plots=1:3}.}
-  \item{density.adjust}{Passed into \code{density}. Controls the amount of
+  \item{density.adjust}{In \code{plot} method for class \code{bgpd}. Passed into \code{density}. Controls the amount of
                      smoothing of the kernel density estimate. Defaults to
                      \code{density.adjust=2}.}
   \item{...}{Further arguments to be passed to methods.}
@@ -136,7 +129,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   
   Working with the log of the scale parameter improves the
   stability of computations, making  a quadratic penalty more 
-  appropriate and enabling the inclusion of covariates in the model for the scale parameter, which must remain positive.  We therefore work with phi=log(xi).  A quadratic penalty can be 
+  appropriate and enabling the inclusion of covariates in the model for the scale parameter, which must remain positive.  We therefore work with \eqn{\phi}=log(\eqn{\sigma}).  All specification of priors or penalty functions refer to \eqn{\phi} rather than \eqn{\sigma}.  A quadratic penalty can be 
   thought of as a Gaussian prior distribution, whence the terminology of the function.
   
   Parameters of the GPD fitted to excesses above threshold \code{th} are estimated by using penalized maximum likelihood (\code{method="optimize"}), or by simulating from the posterior distribution of the model parameters using a Metropolis algorithm (\code{method="simulate"}).  In the latter case, \code{start} is used as a starting value for the Metropolis algorithm; in its absence, the maximum penalized likelhood point estimates are computed and used.
@@ -151,7 +144,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   diagnostic plots for the fitted generalized Pareto model. These differ 
   depending on whether or not there are covariates in the model.  If there 
   are no covariates then the diagnostic plots are PP- and QQ-plots, a 
-  return level plot and a histogram of the data with superimposed generalized 
+  return level plot (produced by \code{plotrl.gpd}) and a histogram of the data with superimposed generalized 
   Pareto density estimate.  These are all calculated using the data on 
   the original scale. If there are covariates in the model then the 
   diagnostics consist of PP- and QQ- plots calculated by using the model 
@@ -165,8 +158,8 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   When \code{method = "simulate"} the \code{plot} function produces 
   diagnostic plots for the Markov chains used to simulate from the posterior 
   distributions for the model parameters.  If the chains have converged on 
-  the posterior distributions, the trace plots should look like `fat hairy 
-  caterpillars' and their cumulative means should converge rapidly. Moreover, 
+  the posterior distributions, the trace plots should look like "fat hairy 
+  caterpillars" and their cumulative means should converge rapidly. Moreover, 
   the autocorrelation functions should converge quickly to zero.
 
   When \code{method = "simulate"} the \code{print} and \code{summary} functions 
@@ -195,7 +188,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
     \item{X.phi}{The design matrix for the log of the scale parameter.}
     \item{X.xi}{The design matrix for the shape parameter.}
     \item{priorParameters}{See above.}
-    \item{data}{The response data (above and below the threshold for fitting).}
+    \item{data}{The original data (above and below the threshold for fitting).}
     \item{residuals}{Data above the threshold for fitting after transformation 
                      to standard exponential scale by using the fitted GPD.}
     \item{loglik}{The value of the optimized log-likelihood.}
@@ -218,7 +211,7 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
     \item{chains}{The entire Markov chain generated by the Metropolis
                   algorithm.}
     \item{y}{The response data above the threshold for fitting.}  
-    \item{data}{The response data (above and below the threshold for fitting).}
+    \item{data}{The original data (above and below the threshold for fitting).}
     \item{X.phi}{The design matrix for the log of the scale parameter.}
     \item{X.xi}{The design matrix for the log of the shape parameter.}
     \item{acceptance}{The proportion of proposals that were accepted by
@@ -226,6 +219,8 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
     \item{seed}{The seed used by the random number generator.}
     \item{param}{The remainder of the chain after deleting the burn-in
                  and applying any thinning.}
+                 
+    There are summary, plot, print and coefficients methods available for these classes.
 
 }
 \note{   When there are estimated values of \code{xi <= -0.5}, the regularity
@@ -235,8 +230,11 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   to simulate from the posterior, but finding a good proposal distribution
   might be difficult and you should take care to get an acceptance rate
   that is reasonably high (around 40\% when there are no covariates, lower
-  otherwise). 
+  otherwise).
   }
+
+\seealso{ \code{\link{rl.gpd}}, \code{\link{predict.gpd}}, \code{\link{gpd.declustered}}.}
+
 \author{Janet E. Heffernan, Harry Southworth.   Some of the internal code is based on the \code{gpd.fit} function
   in the \code{ismev} package and is due to Stuart Coles.}
 
@@ -250,13 +248,13 @@ gpd(y, data, th, qu, phi = ~1, xi = ~1, penalty = "gaussian",
   mod
   par(mfrow=c(2, 2))
   plot(mod)
-  
+
   x <- runif(100,-0.2,0.2)
   data <- data.frame(x=x,y=rgpd(100,sigma=exp(3 + 2*x),xi=x))
   mod <- gpd(y, data, phi = ~x, xi = ~x, th = 0)
   plot(mod)
-  
-# Following lines commented out to keep CRAN robots happy
+
+# Following lines commented out to keep CRAN happy
 #  mod <- gpd(x, qu=.7, method="sim")
 #  mod
 #  par(mfrow=c(3, 2))

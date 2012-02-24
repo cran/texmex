@@ -29,6 +29,8 @@ License: \tab GPL (>=2) | BSD\cr
 
 \code{\link{bootmex}}: Bootstrap estimation for parameters in generalized Pareto models
                 and in the dependence structure.
+                
+\code{\link{declust}}: Estimation of extremal index and subsequent declustering of dependent sequences using the intervals estimator of Ferro and Segers.
 
 \code{\link{validate.texmex}}: Use the \code{RUnit} package to run lots of tests to
             establish a high degree of confidence that the functions do what
@@ -43,7 +45,10 @@ Maintainer: Harry Southworth <harry.southworth@astrazeneca.com>
 \references{
 J. E. Heffernan and J. A. Tawn, A conditional approach
 	for multivariate extreme values, Journal of the Royal Statistical
-	society B, 66, 497 -- 546, 2004
+	society B, 66, 497 -- 546, 2004.
+  
+C.A.T Ferro and J. Segers, Inference for Clusters of Extreme Values, Journal of the Royal Statistical
+	society B, 65, 545 -- 556, 2003.
 }
 \keyword{models}
 \keyword{multivariate}
@@ -52,7 +57,9 @@ J. E. Heffernan and J. A. Tawn, A conditional approach
 # Analyse the winter data used by Heffernan and Tawn
 mymex <- mex(winter, mqu = .7, penalty="none", dqu=.7, which = "NO")
 plot(mymex)
-myboot <- bootmex(mymex)
+# Only do 20 replicates to keep CRAN happy. Do many more in any
+# real application
+myboot <- bootmex(mymex, R=20)
 plot(myboot)
 mypred <- predict(myboot,  pqu=.95)
 summary(mypred , probs = c( .025, .5, .975 ))
@@ -80,7 +87,7 @@ plot(Amex)
 
 plot(Dmex, col="blue")
 
-## Take a closer look at ALT
+## Take a closer look at the marginal behaviour of ALT
 
 r$ndose <- liver$ndose
 
@@ -91,7 +98,7 @@ altmod4 <- gpd(alt, qu=.7, data=r)
 
 # Prefer model 3, with term for xi on basis of AIC
 
-# Lines commented out to keep CRAN robots happy
+# Lines commented out to keep CRAN happy
 #balt3 <- gpd(alt, qu=.7, xi = ~ ndose, data=r, method="simulate")
 #par(mfrow=c(3,3))
 #plot(balt3)
@@ -103,12 +110,11 @@ altmod4 <- gpd(alt, qu=.7, data=r)
 
 # Get some simulated values for dose D
 
-#Dphi <- balt3$param[, 1]
-#Dxi <- balt3$param[, 2] + 4 * balt3$param[, 3]
+#DParam <- predict(balt3,type="lp",newdata=data.frame(ndose=4),all=TRUE)[[1]]
 
-#simD <- rgpd(nrow(balt3$param), sigma=exp(Dphi), xi=Dxi, u=quantile(alt, .7))
+#simD <- rgpd(nrow(DParam), sigma=exp(DParam[,"phi"]), xi=DParam[,"xi"], u=quantile(alt, .7))
 
-# Those are simulated residuals. Get some baselines and transform all
+# These are simulated residuals. Get some baselines and transform all
 # to raw scale
 
 #b <- sample(log(liver$ALT.M), size=nrow(balt3$param), replace=TRUE)

@@ -2,7 +2,7 @@ bootgpd <- function(x, R=100, trace=10){
     if (class(x) != "gpd"){
         stop("x must be of class 'gpd'")
     }
-    
+
     theCall <- match.call()
 
     nphi <- ncol(x$X.phi); nxi <- ncol(x$X.xi)
@@ -22,7 +22,7 @@ bootgpd <- function(x, R=100, trace=10){
         if (i %% trace == 0){ cat("Replicate", i, "\n") }
 
         r <- rgpd(length(xi), xi=xi, sigma=exp(phi))
-		wh <- gpd.fit(y=r,th=min(r), X.phi=X.phi, X.xi=X.xi, penalty=prior, priorParameters=pp, start=co)$par
+		wh <- gpdFit(y=r,th=min(r), X.phi=X.phi, X.xi=X.xi, penalty=prior, priorParameters=pp, start=co)$par
     }
 
     res <- t(sapply(1:R, bfun, xi=xi, phi=phi, X.phi=x$X.phi, X.xi=x$X.xi, co=coef(x), pp=pp, prior=x$penalty))
@@ -34,7 +34,7 @@ bootgpd <- function(x, R=100, trace=10){
         warning("Ratio of bias to standard error is high")
     }
 
-    res <- list(call=theCall, replicates=res, original=coef(x))
+    res <- list(call=theCall, replicates=res, original=coef(x), map=x)
 
     oldClass(res) <- "bootgpd"
     res
@@ -82,7 +82,7 @@ print.summary.bootgpd <- function(x, ...){
     invisible()
 }
 
-plot.bootgpd <- function(x, col="blue", border=FALSE, ...){
+plot.bootgpd <- function(x, col=4, border=FALSE, ...){
 	pfun <- function(x, col, border, xlab,...){
 		d <- density(x, n=100)
 		hist(x, prob=TRUE, col=col, border=border, main="", xlab=xlab, ...)
@@ -111,22 +111,22 @@ test.bootgpd <- function(){
     rainrep[,1] <- exp(rainrep[, 1])
     bse <- apply(rainrep, 2, sd)
 
-    checkEqualsNumeric(cse[1],bse[1],tol=tol,msg="bootgpd: rain se(sigma) matches Coles")
-    checkEqualsNumeric(cse[2],bse[2],tol=tol,msg="bootgpd: rain se(xi) matches Coles")
+    checkEqualsNumeric(cse[1],bse[1],tolerance=tol,msg="bootgpd: rain se(sigma) matches Coles")
+    checkEqualsNumeric(cse[2],bse[2],tolerance=tol,msg="bootgpd: rain se(xi) matches Coles")
 
     # Check bootstrap medians are close to point estimates (the MLEs are
     # biased and the distribution of sigma in particular is skewed, so use
     # medians, not means, and allow a little leeway
-    
+
     best <- apply(rainrep, 2, median)
     cest <- coef(raingpd); cest[1] <- exp(cest[1])
-    checkEqualsNumeric(cest[1],best[1],tol=tol,msg="bootgpd: rain median of sigma matches point estimate")
-    checkEqualsNumeric(cest[2],best[2],tol=tol,msg="bootgpd: rain medians of xi matches point estimate")
+    checkEqualsNumeric(cest[1],best[1],tolerance=tol,msg="bootgpd: rain median of sigma matches point estimate")
+    checkEqualsNumeric(cest[2],best[2],tolerance=tol,msg="bootgpd: rain medians of xi matches point estimate")
 
     ##################################################################
     # Do some checks for models with covariates. Due to apparent instability
     # of the Hessian in some cases, allow some leeway
-    
+
     lmod <- gpd(log(ALT.M / ALT.B), data=liver, qu=.7,
                 xi= ~ as.numeric(dose), phi= ~ as.numeric(dose))
     lboot <- bootgpd(lmod, R=200, trace=100)
@@ -146,7 +146,7 @@ test.bootgpd <- function(){
     pp <- list(c(0, .5), diag(c(.5, .05)))
     raingpd <- gpd(rain, th=30, penalty="none", priorParameters=pp)
     rainboot <- bootgpd(raingpd, R=1000, trace=100)
-    
+
     bse <- apply(rainboot$replicates, 2, sd)
     rse <- bse / raingpd$se
     rse <- ifelse(rse < 1, 1/rse, rse)
@@ -157,9 +157,4 @@ test.bootgpd <- function(){
     rest <- ifelse(rest < 1, 1/rest, rest)
     checkTrue(max(rest) < 1.1, msg="bootgpd: medians in line with point ests")
 }
-
-
-
-
-
 

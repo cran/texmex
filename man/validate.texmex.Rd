@@ -4,6 +4,8 @@
 \alias{test.mex}
 \alias{test.bootgpd}
 \alias{test.bootmex}
+\alias{test.endPoint}
+\alias{test.extremalIndex}
 \alias{test.gpdRangeFit}
 \alias{test.MCS}
 \alias{test.mexDependence}
@@ -17,7 +19,12 @@
 \alias{test.plot.gpd}
 \alias{test.plot.mexDependence}
 \alias{test.plot.migpd}
+\alias{test.plot.lp.gpd}
 \alias{test.plot.predict.mex}
+\alias{test.plotrl.gpd}
+\alias{test.predict.bgpd}
+\alias{test.predict.bootgpd}
+\alias{test.predict.gpd}
 \alias{test.predict.mex}
 \alias{test.qgpd}
 \alias{test.rgpd}
@@ -28,6 +35,8 @@
 \alias{test.info.gpd}
 \alias{test.plot.mex}
 \alias{test.revTransform}
+\alias{test.predict.gpd}
+\alias{test.predict.bgpd}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Validate the texmex package
@@ -76,7 +85,7 @@ values (with discussion). Journal of the Royal Statistical Society, Series B, vo
 Janet E. Heffernan, Harry Southworth
 }
 \note{
-Over 250 tests are performed, some of which run MCMC or bootstrap algorithms.
+Around 400 checks are performed, some of which run MCMC or bootstrap algorithms.
 As a result, the function takes a while to run.
 }
 
@@ -86,11 +95,12 @@ As a result, the function takes a while to run.
 \code{\link{texmex-package}}
 }
 \examples{
-# Uncomment the following lines to run - commented out to make CRAN robots happy
+# Uncomment the following lines to run - commented out to make CRAN happy
 ## open device to save plotted output
+#library(RUnit)
 #pdf("texmexPlots.pdf")
 #val <- validate.texmex()
-#printHTMLProtocol(val, "~/Desktop/texmexReport.html")
+#printHTMLProtocol(val, "texmexReport.html")
 ## finish writing to device
 #dev.off()
 }

@@ -1,33 +1,20 @@
-`rgpd` <- function(n, sigma, xi, u = 0 ){
-
-	# Check parameter vectors have correct length
-    sigma <- rep(sigma, length=n)
-    xi <- rep(xi, length=n)
-    u <- rep(u, length=n)
-
-  # Get random numbers
-  if ( all( xi == 0 ) ){
-		res <- rexp( n, 1/sigma )+ u
-	}	else if (any(xi == 0)){
-	    res <- numeric(n)
-
-	    wh <- xi == 0
-	    res[wh] <- rexp(sum(xi == 0), 1/sigma[wh]) + u[wh]
-
-	    res[!wh] <- sigma[!wh]/xi[!wh] * (runif(sum(!wh))^(-xi[!wh]) - 1) + u[!wh]
-	}	else {
-		res <- u + sigma / xi  * (runif(n)^( -xi ) - 1)
+rgpd <- function(n, sigma, xi, u = 0) {
+    # Check parameter vectors have correct length
+    sigma <- as.double(rep(sigma, length=n))
+    xi <- as.double(rep(xi, length=n))
+    u <- as.double(rep(u, length=n))
+    result <- double(n)
+    # and pass to the underlying C
+    .C(.c.rgpd, result=result, as.integer(n), sigma, xi, u)$result
   }
-  res
-}
 
 test.rgpd <- function(){
-
+  evd.rgpd <- texmex:::.evd.rgpd
   myTest <- function(seed,p, thresh,msg=""){
       set.seed(seed)
       x <- sapply(1:nreps, function(i)rgpd(nsim, p[i,1], p[i,2], u=thresh[i]))
       set.seed(seed)  
-      ex <- sapply(1:nreps, function(i).evd.rgpd(nsim, loc=thresh[i], scale=p[i,1],shape=p[i,2]))
+      ex <- sapply(1:nreps, function(i)evd.rgpd(nsim, loc=thresh[i], scale=p[i,1],shape=p[i,2]))
       checkEqualsNumeric(ex,x,msg=msg)
       }
   seed <- 20101111
@@ -65,7 +52,7 @@ test.rgpd <- function(){
   set.seed(seed)
   x <- rgpd(nreps, sig, xi)
   set.seed(seed)
-  ex <- sapply(1:nreps, function(i).evd.rgpd(1, loc=0, scale=sig[i], shape=xi[i]))
+  ex <- sapply(1:nreps, function(i)evd.rgpd(1, loc=0, scale=sig[i], shape=xi[i]))
   
   checkEqualsNumeric(ex, x, msg="rgpd: vectorisation")
 }

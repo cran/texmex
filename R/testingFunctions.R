@@ -1,10 +1,68 @@
 # NOT FOR END-USERS.
-# THESE ARE FUNCTIONS TAKEN FROM THE ismev AND evd PACKAGES, 
+# THESE ARE FUNCTIONS TAKEN FROM THE ismev, evd and extRemes PACKAGES, 
 # AND FROM CODE BY YIANNIS PAPASTATHOPOULOS AND ARE USED
 # SOLELY FOR TESTING texmex.
 # Date evd installed: 2010-12-1
 # Date ismev installed: 2010-12-1
 # Date Papastathopoulos code: 2011-06-22
+# Date extRemes installed : 2012-01-10
+
+.extRemes.decluster.intervals <- function (Z, ei) 
+{
+    if (ei >= 1) {
+        r <- 0
+    }
+    else {
+        s <- c(1:length(Z))[Z]
+        t <- diff(s)
+        temp <- rev(sort(t))
+        nc <- 1 + floor(ei * (sum(Z) - 1))
+        while ((nc > 1) && (temp[nc - 1] == temp[nc])) nc <- nc - 1
+        r <- temp[nc]
+    }
+    out <- .extRemes.decluster.runs(Z, r)
+    out$scheme <- "intervals"
+    out
+}
+
+.extRemes.decluster.runs <- function (Z, r) 
+{
+    nx <- sum(Z)
+    s <- c(1:length(Z))[Z]
+    t <- diff(s)
+    cluster <- rep(1, nx)
+    if (nx > 1) 
+        cluster[2:nx] <- 1 + cumsum(t > r)
+    size <- tabulate(cluster)
+    nc <- length(size)
+    inter <- rep(FALSE, nx)
+    inter[match(1:nc, cluster)] <- TRUE
+    list(scheme = "runs", par = r, nc = nc, size = size, s = s, 
+        cluster = cluster, t = c(NA, t), inter = inter, intra = !inter, 
+        r = r)
+}
+
+.extRemes.exi.intervals <- function(Z) 
+{
+    if (sum(Z) <= 1) {
+        warning("estimator undefined: too few exceedances")
+        return(1)
+    }
+    else {
+        nz <- length(Z)
+        s <- c(1:nz)[Z]
+        t <- diff(s)
+        if (max(t) <= 2) {
+            t1 <- mean(t)
+            t2 <- mean(t^2)
+        }
+        else {
+            t1 <- mean(t - 1)
+            t2 <- mean((t - 1) * (t - 2))
+        }
+    }
+    2 * (t1^2)/t2
+}
 
 .evd.qgpd <-
 function (p, loc = 0, scale = 1, shape = 0, lower.tail = TRUE) 
@@ -24,30 +82,21 @@ function (p, loc = 0, scale = 1, shape = 0, lower.tail = TRUE)
 }
 
 .ismev.gpd.fit <-
-function (xdat, threshold, npy = 365, ydat = NULL, sigl = NULL, 
-    shl = NULL, siglink = identity, shlink = identity, siginit = NULL, 
-    shinit = NULL, show = TRUE, method = "Nelder-Mead", maxit = 10000, 
-    ...) 
+function (xdat, threshold, npy = 365, ydat = NULL, sigl = NULL,
+    shl = NULL, siglink = identity, shlink = identity, siginit = NULL,
+    shinit = NULL, show = TRUE, method = "Nelder-Mead", maxit = 10000,
+    ...)
 {
-
-	if (!is.R()){
-		if (missing(shlink)){
-			shlink <- function(x){ x }
-		}
-		if (missing(siglink)){
-			siglink <- function(x){ x }
-		}
-	}
 
     z <- list()
     npsc <- length(sigl) + 1
     npsh <- length(shl) + 1
     n <- length(xdat)
     z$trans <- FALSE
-    if (is.function(threshold)) 
+    if (is.function(threshold))
         stop("`threshold' cannot be a function")
     u <- rep(threshold, length.out = n)
-    if (length(unique(u)) > 1) 
+    if (length(unique(u)) > 1)
         z$trans <- TRUE
     xdatu <- xdat[xdat > u]
     xind <- (1:n)[xdat > u]
@@ -56,24 +105,24 @@ function (xdat, threshold, npy = 365, ydat = NULL, sigl = NULL,
     in1 <- mean(xdat, na.rm = TRUE) - 0.57722 * in2
     if (is.null(sigl)) {
         sigmat <- as.matrix(rep(1, length(xdatu)))
-        if (is.null(siginit)) 
+        if (is.null(siginit))
             siginit <- in2
     }
     else {
         z$trans <- TRUE
         sigmat <- cbind(rep(1, length(xdatu)), ydat[xind, sigl])
-        if (is.null(siginit)) 
+        if (is.null(siginit))
             siginit <- c(in2, rep(0, length(sigl)))
     }
     if (is.null(shl)) {
         shmat <- as.matrix(rep(1, length(xdatu)))
-        if (is.null(shinit)) 
+        if (is.null(shinit))
             shinit <- 0.1
     }
     else {
         z$trans <- TRUE
         shmat <- cbind(rep(1, length(xdatu)), ydat[xind, shl])
-        if (is.null(shinit)) 
+        if (is.null(shinit))
             shinit <- c(0.1, rep(0, length(shl)))
     }
     init <- c(siginit, shinit)
@@ -83,51 +132,26 @@ function (xdat, threshold, npy = 365, ydat = NULL, sigl = NULL,
     z$nexc <- length(xdatu)
     z$data <- xdatu
 
-	if (is.R()){
-	    gpd.lik <- function(a) {
-	        sc <- siglink(sigmat %*% (a[seq(1, length = npsc)]))
-	        xi <- shlink(shmat %*% (a[seq(npsc + 1, length = npsh)]))
-	        y <- (xdatu - u)/sc
-	        y <- 1 + xi * y
-	        if (min(sc) <= 0) 
-	            l <- 10^6
-	        else {
-	            if (min(y) <= 0) 
-	                l <- 10^6
-	            else {
-	                l <- sum(log(sc)) + sum(log(y) * (1/xi + 1))
-	            }
-	        }
-	        l
-	    }
-	    x <- optim(init, gpd.lik, hessian = TRUE, method = method, 
-	        control = list(maxit = maxit))
-	} # Close if (is.R
-	
-	else {
-		gpd.lik <- function(a, siglink, shlink, sigmat, shmat, npsc, npsh, xdatu, th){
-	        sc <- siglink(sigmat %*% (a[seq(1, length = npsc)]))
-	        xi <- shlink(shmat %*% (a[seq(npsc + 1, length = npsh)]))
-	        u <- th
-	        y <- (xdatu - u)/sc
-	        y <- 1 + xi * y
-	        if (min(sc) <= 0) 
-	            l <- 10^6
-	        else {
-	            if (min(y) <= 0) 
-	                l <- 10^6
-	            else {
-	                l <- sum(log(sc)) + sum(log(y) * (1/xi + 1))
-	            }
-	        }
-	        l
-		} # Close gpd.lik 
-	    x <- optim(init, gpd.lik, hessian = TRUE, method = method, 
-	        	   control = list(maxit = maxit, ...), siglink=siglink, shlink=shlink,
-	        	   sigmat=sigmat, shmat=shmat, npsc=npsc, npsh=npsh, xdatu=xdatu, th=u)
-		
-	} # Close else
-	
+
+    gpd.lik <- function(a) {
+        sc <- siglink(sigmat %*% (a[seq(1, length = npsc)]))
+        xi <- shlink(shmat %*% (a[seq(npsc + 1, length = npsh)]))
+        y <- (xdatu - u)/sc
+        y <- 1 + xi * y
+        if (min(sc) <= 0)
+            l <- 10^6
+        else {
+            if (min(y) <= 0)
+                l <- 10^6
+            else {
+                l <- sum(log(sc)) + sum(log(y) * (1/xi + 1))
+            }
+        }
+        l
+    } # Close gpd.lik <- function
+
+    x <- optim(init, gpd.lik, hessian = TRUE, method = method,
+               control = list(maxit = maxit))
 
     sc <- siglink(sigmat %*% (x$par[seq(1, length = npsc)]))
     xi <- shlink(shmat %*% (x$par[seq(npsc + 1, length = npsh)]))

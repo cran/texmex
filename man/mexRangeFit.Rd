@@ -7,13 +7,14 @@ Estimate dependence parameters in a conditional multivariate extreme values mode
 Diagnostic tool to aid the choice of threshold to be used for the estimation of the dependence parameters in the conditional multivariate extreme values model of Heffernan and Tawn, 2004.  
 }
 \usage{
-mexRangeFit(x, which, quantiles = seq(0.5, 0.9, length = 9), R = 10, nPass=3, trace=10, col = "red", bootcol = "grey", margins = "laplace", constrain = TRUE, v = 10, ...)
+mexRangeFit(x, which, quantiles = seq(0.5, 0.9, length = 9), start=c(.01, .01), R = 10, nPass=3, trace=10, col = 2, bootcol = "grey", margins = "laplace", constrain = TRUE, v = 10, addNexcesses = TRUE, ...)
 }
 \arguments{
   \item{x}{An object of class \code{\link{mex}} or \code{\link{migpd}}.}
   \item{which}{The variable on which to condition.}
   \item{quantiles}{A numeric vector specifying the quantiles of the marginal distribution of the conditioning variable at which to fit the dependence model.
 }
+  \item{start}{See documentation for this argument in \code{\link{mexDependence}}.}
   \item{R}{ The number of bootstrap runs to perform at each threshold. Defaults to \code{R}=10.}
   \item{nPass}{Argument passed to function \code{\link{bootmex}}.}
   \item{trace}{Argument passed to function \code{\link{bootmex}}.}
@@ -24,6 +25,7 @@ Plotting colour for the bootstrap estimates of the dependence parameters.}
   \item{margins}{Argument passed to function \code{\link{mexDependence}}.}
   \item{constrain}{Argument passed to function \code{\link{mexDependence}}.}
   \item{v}{Argument passed to function \code{\link{mexDependence}}.}
+  \item{addNexcesses}{Logical, whether to annotate the top axis with the number of excesses corresponding to each threshold.}
   \item{\dots}{
 Further graphical parameters may be passed, which will be used for plotting.
 }
@@ -49,10 +51,11 @@ Harry Southworth, Janet E. Heffernan
 }
 
 \examples{
-  w <- migpd(winter, mqu=.7)
-  w
-  par(mfrow=c(4,2))
-  mexRangeFit(w,which=1,main="Winter data, Heffernan and Tawn 2004",cex=0.5)
+# Example commented out to reduce R CMD check time
+#  w <- migpd(winter, mqu=.7)
+#  w
+#  par(mfrow=c(4,2))
+#  mexRangeFit(w,which=1,main="Winter data, Heffernan and Tawn 2004",cex=0.5)
   }
 
 \keyword{ models }

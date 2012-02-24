@@ -1,17 +1,16 @@
 \name{gpdRangeFit}
 \alias{gpdRangeFit}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{ Estimate generalized Pareto distribution parameters over a range of values }
 \description{
   Estimate generalized Pareto distribution parameters over a range of values, using
   maximum (penalized) likelihood.
 }
 \usage{
-gpdRangeFit(data, umin, umax, nint = 10, 
+gpdRangeFit(data, umin=quantile(data, .05), umax=quantile(data, .95), nint = 10, 
             penalty = "gaussian", priorParameters = NULL, alpha=0.05,
-xlab = "Threshold", ylab = NULL, main = NULL, ...)
+            xlab = "Threshold", ylab = NULL, main = NULL, addNexcesses=TRUE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{data}{ The data vector to be modelled. }
   \item{umin}{ The minimum threshold above which to esimate the parameters. }
@@ -27,17 +26,19 @@ xlab = "Threshold", ylab = NULL, main = NULL, ...)
   \item{xlab}{ Label for the x-axis. }
   \item{ylab}{ Label for the y-axis. }
   \item{main}{ The main title. }
+  \item{addNexcesses}{ Annotate top axis with numbers of threshold excesses arising with the corresponding values of threshold on the bottom axis.}
   \item{\dots}{ Arguments to \code{plot} }
 }
 \details{
-  This is Stuart Coles's \code{gpd.fitrange}, as it appears in the
+  This is Stuart Coles' \code{gpd.fitrange}, as it appears in the
   \code{ismev} package, with some fairly minor changes. The function uses
   \code{gpd} internally and uses the default options for that function.
   
+  Note this function does not extend to assessing model fit when there are covariates included in the mdoel.
 }
 
 \author{ Stuart Coles, Janet E Heffernan, Harry Southworth }
-\seealso{ gpd }
+\seealso{ \code{\link{gpd}} }
 \examples{
 par(mfrow=c(1,2))
 gpdRangeFit(rain)
