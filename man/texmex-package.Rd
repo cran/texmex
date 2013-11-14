@@ -2,24 +2,28 @@
 \alias{texmex-package}
 \alias{texmex}
 \docType{package}
-\title{
-Conditional multivariate extreme values modelling.
-}
-\description{
-Conditional multivariate extreme values modelling following the approach
-of Heffernan and Tawn, 2004.
-}
+\title{Extreme value modelling}
+\description{Extreme values modelling, including the conditional multivariate
+approach of Heffernan and Tawn (2004).}
 \details{
 \tabular{ll}{
 Package: \tab mex\cr
 Type: \tab Package\cr
-Version: \tab 1.2\cr
-Date: \tab 2011-10-06\cr
+Version: \tab 2.0\cr
+Date: \tab 2013-11-14\cr
 License: \tab GPL (>=2) | BSD\cr
 }
-\code{\link{gpd}}: Fit generalized Pareto distributions to data, possibly with
+The packages was originally called `texmex' for Threshold EXceedances and
+Multivariate EXtremes. However, it is no longer the case that only threshold
+excess models are implemented, so the `tex' bit doesn't make sense. So, the
+package is called `texmex' because it used to be called `texmex'.
+
+\code{\link{evm}}: Fit extreme value distributions to data, possibly with
             covariates. Use maximum likelihood estimation, maximum
-            penalized likelihood estimation or simulate from the posterior
+            penalized likelihood estimation, simulate from the posterior
+            distribution or run a parametric bootstrap. Extreme value
+            families include the generalized Pareto distribution
+            (\code{gpd}) and generalized extreme value (\code{gev})
             distribution.
 
 \code{\link{mex}}: Fit multiple, independent generalized Pareto models
@@ -32,15 +36,13 @@ License: \tab GPL (>=2) | BSD\cr
                 
 \code{\link{declust}}: Estimation of extremal index and subsequent declustering of dependent sequences using the intervals estimator of Ferro and Segers.
 
-\code{\link{validate.texmex}}: Use the \code{RUnit} package to run lots of tests to
-            establish a high degree of confidence that the functions do what
-            they are supposed to.
 }
 \author{
 Harry Southworth, Janet E. Heffernan
 
-Maintainer: Harry Southworth <harry.southworth@astrazeneca.com>
+Maintainer: Harry Southworth <harry.southworth@gmail.com>
 
+URL: http://code.google.com/p/texmex/
 }
 \references{
 J. E. Heffernan and J. A. Tawn, A conditional approach
@@ -91,15 +93,15 @@ plot(Dmex, col="blue")
 
 r$ndose <- liver$ndose
 
-altmod1 <- gpd(alt, qu=.7, phi = ~ ndose, xi = ~ ndose, data=r)
-altmod2 <- gpd(alt, qu=.7, phi = ~ ndose, data=r)
-altmod3 <- gpd(alt, qu=.7, xi = ~ ndose, data=r)
-altmod4 <- gpd(alt, qu=.7, data=r)
+altmod1 <- evm(alt, qu=.7, phi = ~ ndose, xi = ~ ndose, data=r)
+altmod2 <- evm(alt, qu=.7, phi = ~ ndose, data=r)
+altmod3 <- evm(alt, qu=.7, xi = ~ ndose, data=r)
+altmod4 <- evm(alt, qu=.7, data=r)
 
 # Prefer model 3, with term for xi on basis of AIC
 
-# Lines commented out to keep CRAN happy
-#balt3 <- gpd(alt, qu=.7, xi = ~ ndose, data=r, method="simulate")
+# Lines commented out to keep CRAN checks short
+#balt3 <- evm(alt, qu=.7, xi = ~ ndose, data=r, method="simulate")
 #par(mfrow=c(3,3))
 #plot(balt3)
 

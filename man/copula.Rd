@@ -22,11 +22,11 @@ copula(x, na.last = NA)
   The result is obtained by applying \code{\link{edf}} to each
   column of \code{x} in turn.
   
-  Print, plot, show and summary methods are available for the copula class.
+  Print, plot and summary methods are available for the copula class.
 }
 \value{
   A matrix with the same dimensions as \code{x}, each column
-  of which contains the quantiles of each column of \code{x}. This object uis of class \code{copula}.
+  of which contains the quantiles of each column of \code{x}. This object is of class \code{copula}.
 }
 \author{ Harry Southworth }
 \seealso{ \code{\link{edf}} }

@@ -48,8 +48,6 @@ print.extremalIndex <- function(x,...)
   cat("Intervals estimator of Extremal Index", x$EIintervals,"\n")
 }
 
-show.extremalIndex <- print.extremalIndex
-
 plot.extremalIndex <- function(x,...)
 {
   NormInterExceedTimes <- x$interExceedTimes * x$thExceedanceProb
@@ -142,8 +140,6 @@ print.declustered <- function(x,...){
   cat("Identified",length(x$sizes),"clusters.\n")
 }
 
-show.declustered <- print.declustered
-
 plot.declustered <- function(x,ylab="Data",...){
   plot(x$y,xlab="",ylab=ylab)
   abline(h=x$threshold,col=2)
@@ -196,7 +192,7 @@ extremalIndexRangeFit <- function(y,data=NULL,umin=quantile(y,.5),umax=quantile(
     EI$m[i] <- z$EIintervals
     d <- declust(z)
     if(estGPD){
-      gpd.d <- gpd.declustered(d)
+      gpd.d <- evm.declustered(d)
       co.d <- coef(gpd.d)
       SH$m[i] <- co.d[2]
       SC$m[i] <- exp(co.d[1]) - co.d[2]*u[i]
@@ -212,7 +208,7 @@ extremalIndexRangeFit <- function(y,data=NULL,umin=quantile(y,.5),umax=quantile(
       if(estGPD){
         z.d <- declust(z.b)
         z.d$clusterMaxima <- rgpd(z.d$nClusters,exp(co.d[1]),co.d[2],u=z.d$threshold)
-        gpd.b <- try(gpd.declustered(z.d,cov="numeric"))
+        gpd.b <- try(evm.declustered(z.d,cov="numeric"))
         if(class(gpd.b) == "try-error"){
           SH$boot[i,j] <- SC$boot[i,j] <- NA
         } else {
@@ -249,61 +245,24 @@ extremalIndexRangeFit <- function(y,data=NULL,umin=quantile(y,.5),umax=quantile(
   invisible()
 }
 
-gpd.declustered <- function(y, ...){
-  theCall <- match.call()
+evm.declustered <- function(y, data=NULL, family=gpd, ...){
+  myCall <- match.call()
+
   if(is.null(y$data)){
-    res <- gpd(y$clusterMaxima, th = y$threshold, ...)
+    res <- evm(y$clusterMaxima, th = y$threshold, ...)
   } else {
     response <- y$clusterMaxima
     dat <- cbind(response,y$data[y$y>y$threshold,][y$isClusterMax,])
-    res <- gpd(response, data=dat, th = y$threshold, ...)
+    res <- evm(response, data=dat, th = y$threshold, ...)
   }
 
   clusterRate <- max(y$clusters) / length(y$y)
-  if(class(res) == "gpd"){
+  if(class(res) == "evmOpt"){
     res$rate <- clusterRate
-  } else if(class(res) == "bgpd") {
+  } else if(class(res) == "evmSim") {
     res$map$rate <- clusterRate
   }
-  res$call <- theCall
+  res$call <- myCall
   res
 }
 
-test.extremalIndex <- function(){
-  tol <- 0.0001
-  th <- quantile(rain,seq(0.7,0.99,len=10))
-  for(i in 1:length(th)){
-    texmex.ei <- extremalIndex(rain,threshold=th[i])
-    Ferro.ei  <- texmex:::.extRemes.exi.intervals(rain > th[i])
-
-    Ferro.clust <- texmex:::.extRemes.decluster.intervals(rain> th[i], Ferro.ei)
-    texmex.clust <- declust(texmex.ei)
-
-    Ferro.runs <-  texmex:::.extRemes.decluster.runs(rain> th[i], 3)
-    texmex.runs <- declust(rain,threshold=th[i],r=3,verbose=FALSE)
-
-    checkEqualsNumeric(texmex.ei$EIintervals, Ferro.ei,
-          tolerance = tol,msg="extremalIndex: extRemes implementation")
-    checkEqualsNumeric(texmex.clust$sizes, Ferro.clust$size,
-          tolerance = tol,msg="extremalIndex: declustering")
-
-    checkEqualsNumeric(texmex.runs$nCluster,Ferro.runs$nc,msg="extremalIndex: runs declustering nc")
-    checkEqualsNumeric(texmex.runs$sizes,Ferro.runs$size,msg="extremalIndex: runs declustering sizes")
-    }
-
-# check passing data through data frames
-
-  data <- data.frame(RAIN=rain[1:1000], rnorm=rnorm(1000), num=1:1000)
-  extremalIndexRangeFit(RAIN, data,verbose=FALSE,nboot=20,nint=7)
-  extremalIndexRangeFit(data$RAIN,verbose=FALSE,nboot=20,nint=7)
-
-  data.de <- declust(RAIN,data=data,th=th[1],verb=FALSE)
-  resp.de <- declust(data$RAIN,th=th[1],verb=FALSE)
-
-  data.ei <- extremalIndex(RAIN,data=data,threshold=th[1])
-  resp.ei <- extremalIndex(data$RAIN,threshold=th[1])
-
-  checkEqualsNumeric(data.ei$EIintervals,resp.ei$EIintervals,tolerance=tol,msg="extremalIndex: using data frame to pass response")
-  checkEqualsNumeric(data.de$clusters,resp.de$clusters,tolerance=tol,msg="extremalIndex: using data frame to pass numeric response to declustering")
-
-}

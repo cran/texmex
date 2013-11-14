@@ -69,16 +69,6 @@
 }
 
 
-.make.gpd.loglikelihood <- function(y, th, X.phi, X.xi) {
-  n.phi <- ncol(X.phi)
-  n.end <- n.phi + ncol(X.xi)
-  function(param) {
-    stopifnot(length(param) == n.end)
-    phi <- X.phi %*% param[1:n.phi]
-    xi <- X.xi %*% param[(1 + n.phi):n.end]
-    sum(dgpd(y, exp(phi), xi, u=th, log.d=TRUE))
-  }
-}
 
 .random.spd.matrix <- function(dimn) {
   # generate a random symmetric positive definite matrix
@@ -96,23 +86,3 @@
   }
 }
 
-test.closures <- function() {
-  make.mvn.prior <- texmex:::.make.mvn.prior
-  make.quad.prior <- texmex:::.make.quadratic.penalty
-  make.spd.matrix <- texmex:::.random.spd.matrix
-  for (count in 1:100) {
-    dimn <- sample(10, size=1)
-    cov.matrix <- make.spd.matrix(dimn)
-    centre <- rexp(dimn)
-    mvnprior <- make.mvn.prior(list(centre, cov.matrix))
-    point <- rexp(dimn)
-    checkEqualsNumeric(mvnprior(point),
-                       dmvnorm(point, centre, cov.matrix, log=TRUE),
-                       "efficient.closures: multivariate Gaussian prior")
-    quadprior <- make.quad.prior(list(centre, cov.matrix))
-    checkEqualsNumeric(quadprior(point),
-                       mahalanobis(point, centre, cov.matrix),
-                       "efficient.closures: Mahalanobis distance")
-    # or "A-norm", as it's otherwise called
-  }
-}
