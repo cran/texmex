@@ -9,8 +9,8 @@ approach of Heffernan and Tawn (2004).}
 \tabular{ll}{
 Package: \tab mex\cr
 Type: \tab Package\cr
-Version: \tab 2.0\cr
-Date: \tab 2013-11-14\cr
+Version: \tab 2.1\cr
+Date: \tab 2013-12-10\cr
 License: \tab GPL (>=2) | BSD\cr
 }
 The packages was originally called `texmex' for Threshold EXceedances and
@@ -61,7 +61,7 @@ mymex <- mex(winter, mqu = .7, penalty="none", dqu=.7, which = "NO")
 plot(mymex)
 # Only do 20 replicates to keep CRAN happy. Do many more in any
 # real application
-myboot <- bootmex(mymex, R=20)
+myboot <- bootmex(mymex, R=10)
 plot(myboot)
 mypred <- predict(myboot,  pqu=.95)
 summary(mypred , probs = c( .025, .5, .975 ))
@@ -90,17 +90,17 @@ plot(Amex)
 plot(Dmex, col="blue")
 
 ## Take a closer look at the marginal behaviour of ALT
+# Lines commented out to keep CRAN checks short
 
-r$ndose <- liver$ndose
+#r$ndose <- liver$ndose
 
-altmod1 <- evm(alt, qu=.7, phi = ~ ndose, xi = ~ ndose, data=r)
-altmod2 <- evm(alt, qu=.7, phi = ~ ndose, data=r)
-altmod3 <- evm(alt, qu=.7, xi = ~ ndose, data=r)
-altmod4 <- evm(alt, qu=.7, data=r)
+#altmod1 <- evm(alt, qu=.7, phi = ~ ndose, xi = ~ ndose, data=r)
+#altmod2 <- evm(alt, qu=.7, phi = ~ ndose, data=r)
+#altmod3 <- evm(alt, qu=.7, xi = ~ ndose, data=r)
+#altmod4 <- evm(alt, qu=.7, data=r)
 
 # Prefer model 3, with term for xi on basis of AIC
 
-# Lines commented out to keep CRAN checks short
 #balt3 <- evm(alt, qu=.7, xi = ~ ndose, data=r, method="simulate")
 #par(mfrow=c(3,3))
 #plot(balt3)

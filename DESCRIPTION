@@ -1,8 +1,8 @@
 Package: texmex
 Type: Package
 Title: Statistical modelling of extreme values
-Version: 2.0
-Date: 2013-11-14
+Version: 2.1
+Date: 2013-12-10
 Author: Harry Southworth, Janet E. Heffernan
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
 Description: Statistical extreme value modelling of threshold excesses,
@@ -42,7 +42,7 @@ Collate: globalVariables.R texmexFamily.R AIC.evm.R plot.evm.R
         mrl.R mspearman.R texmexWorkers.R multivariate.cauchy.R
         thinAndBurn.evm.sim.R u2gpd.R plot.evmSim.R plot.bootmex.R
         special.functions.R
-Packaged: 2013-11-23 15:52:43 UTC; harry
+Packaged: 2013-12-31 09:51:19 UTC; harry
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-11-25 10:27:00
+Date/Publication: 2013-12-31 11:51:30
