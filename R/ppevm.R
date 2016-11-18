@@ -1,5 +1,6 @@
 ppevm <-
 function(object , nsim = 1000, alpha = .050){
+    object <- texmexStandardForm(object)
     # Want parameters as a matrix with one row for passing
     # into family$rng and so on
     a <- t(object$coefficients)
@@ -10,8 +11,7 @@ function(object , nsim = 1000, alpha = .050){
     rfun <- object$family$rng
 
     ModPoints <- ppoints(dat)
-
-	# If doing the envelope, simulate, sort and get the quantiles
+    # If doing the envelope, simulate, sort and get the quantiles
     if (nsim > 0){
         n <- length(dat)
         sim <- matrix(rfun(nsim * n, a, object), ncol = nsim)
@@ -26,6 +26,7 @@ function(object , nsim = 1000, alpha = .050){
     res
 }
 
+#' @export
 plot.ppevm <- function(x, xlab, ylab,  main,
                        pch=1, col = 2, cex = .75, linecol = 4,
                        intcol = 0, polycol=15, ...){
@@ -56,4 +57,12 @@ plot.ppevm <- function(x, xlab, ylab,  main,
     invisible()
 }
 
-print.ppevm <- plot.ppevm
+#' @export
+print.ppevm <- function(x, xlab, ylab,  main,
+                        pch=1, col = 2, cex = .75, linecol = 4,
+                        intcol = 0, polycol=15, ...){
+    plot.ppevm(x, xlab, ylab,  main,
+               pch=pch, col = col, cex = cex, linecol = linecol,
+                intcol = intcol, polycol=polycol, ...)
+    invisible(x)
+}

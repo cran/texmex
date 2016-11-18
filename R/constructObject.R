@@ -19,14 +19,22 @@ addCovariance <- function(o, family, cov){
     else if (cov == "observed") {
       cov <- solve(family$info(o))
     }
+    else if (cov == "sandwich") {
+      if (is.null(family$sandwich)) {
+          stop("sandwich estimator not implemented for this evm family")
+      }
+      I.inv <- solve(family$info(o))
+      Sand <- family$sandwich(o)
+      cov <- I.inv %*% Sand %*% I.inv
+    }
     else {
-      stop("cov must be either 'numeric' or 'observed'")
+      stop("cov must be either 'numeric', 'observed' or 'sandwich'")
     }
 
     cov
 }
 
-constructEVM <- function(o, family, th, rate, prior, modelParameters, call,
+constructEVM <- function(o, family, ..., th, rate, prior, modelParameters, call,
                          modelData, data, priorParameters, cov){
     o$family <- family
     o$threshold <- th
@@ -41,13 +49,13 @@ constructEVM <- function(o, family, th, rate, prior, modelParameters, call,
     o$ploglik <- -o$value # Penalized loglik
 
     # Get unpenalized version
-    ll <- family$log.lik(modelData, th)
+    ll <- family$log.lik(modelData, th, ...)
     o$loglik <- ll(o$coefficients)
 
     oldClass(o) <- 'evmOpt'
 
-    o$cov <- addCovariance(o, family, cov)
-    o$se <- sqrt(diag(o$cov))
+    o$cov <- try(addCovariance(o, family, cov))
+    o$se <- try(sqrt(diag(o$cov)))
 
     o$value <- o$counts <- o$hessian <- NULL
 

@@ -41,17 +41,22 @@ getPlotRLdata <- function(object, alpha, RetPeriodRange){
 
     xrange <- range(m)
     yrange <- range(c(xdat, range(xm[plotX,])))
-    
+
     list(n=n, xdat=xdat, m=m, xm=xm, plotX=plotX, xrange=xrange, yrange=yrange)
 }
 
 
-
+#' @rdname rl
+#' @param plot. Parameter for plot method, whether to produce plots.
+#' @export
 plot.rl.evmOpt <- function(x, # method for rl.(evmBoot or evmSim or evmOpt) object, which may have covariates.  Plots return level for each unique row in design matrix
          xlab, ylab, main,
          pch= 1, ptcol =2 , cex=.75, linecol = 4 ,
-         cicol = 0, polycol = 15, smooth = FALSE, sameAxes=TRUE, type="median", ...){
+         cicol = 0, polycol = 15, smooth = FALSE, sameAxes=TRUE, type="median", ylim = NULL, plot.=TRUE, ...){
 
+    Class <- class(x)
+    x <- x$obj
+    
     if (missing(xlab) || is.null(xlab)) { xlab <- "Return period" }
     if (missing(ylab) || is.null(ylab)) { ylab <- "Return level" }
     if (missing(main) || is.null(main)) {
@@ -82,7 +87,7 @@ plot.rl.evmOpt <- function(x, # method for rl.(evmBoot or evmSim or evmOpt) obje
       stop("main must be length 1 or number of unique covariates for prediction")
     }
 
-    if(class(x) == "rl.evmOpt"){
+    if(Class == "rl.evmOpt"){
       if(any(colnames(x[[1]]) == "se.fit")){
         which <- colnames(x[[1]]) != "se.fit"
         nd <- nd-1
@@ -91,7 +96,7 @@ plot.rl.evmOpt <- function(x, # method for rl.(evmBoot or evmSim or evmOpt) obje
       } else {
         Unlist <- unlist(x)
       }
-    } else if(class(x) == "rl.evmSim" | class(x) == "rl.evmBoot"){
+    } else if(Class == "rl.evmSim" |Class == "rl.evmBoot"){
         if(casefold(type) == "median"){
           which <- substring(colnames(x[[1]]), nchar(colnames(x[[1]])) -3) != "Mean"
         } else if(casefold(type) == "mean") {
@@ -115,7 +120,11 @@ plot.rl.evmOpt <- function(x, # method for rl.(evmBoot or evmSim or evmOpt) obje
     }
 
     if(sameAxes){
-       yrange <- range(Array[,1:3,])
+        if(!is.null(ylim)){
+            yrange <- ylim
+        } else {
+            yrange <- range(Array[,1:3,])#ifelse(is.null(ylim),,ylim)
+        }
     }
 
     for(i in 1:ncov){
@@ -135,14 +144,22 @@ plot.rl.evmOpt <- function(x, # method for rl.(evmBoot or evmSim or evmOpt) obje
       } else {
         Main <- main[i]
       }
-      plotRLevm(m,xm,polycol = polycol,cicol=cicol,linecol=linecol,ptcol=ptcol,pch=pch,
-                smooth=smooth,xlab=xlab,ylab=ylab,main=Main,xrange=range(m),yrange=yrange)
+      if(plot.){
+        plotRLevm(m,xm,polycol = polycol,cicol=cicol,linecol=linecol,ptcol=ptcol,pch=pch,
+                  smooth=smooth,xlab=xlab,ylab=ylab,main=Main,xrange=range(m),yrange=yrange)
+      }
     }
 
     invisible(list(m=m,xm=Array))
 }
 
-plot.rl.evmBoot <- plot.rl.evmSim <- plot.rl.evmOpt
+#' @rdname rl
+#' @export
+plot.rl.evmSim <- plot.rl.evmOpt
+
+#' @rdname rl
+#' @export
+plot.rl.evmBoot <- plot.rl.evmOpt
 
 plotRLevm <- function(M,xm,polycol,cicol,linecol,ptcol,n,xdat,pch,smooth,xlab,ylab,main,xrange,yrange){
 # worker function - called by plotrl.evmOpt, plot.rl.evmOpt, plot.rl.evmSim, plot.rl.evmBoot

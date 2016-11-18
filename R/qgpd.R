@@ -1,5 +1,7 @@
+#' @rdname dgpd
+#' @export
 qgpd <-
-function(p , sigma, xi, u = 0, lower.tail=TRUE, log.p=FALSE ){
+function(p , sigma, xi, u = 0, lower.tail=TRUE, log.p=FALSE){
   ## this code is trickier than it looks.
 
   ## we use G ~ (exp(xi E) - 1) / xi

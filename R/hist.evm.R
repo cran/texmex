@@ -1,35 +1,29 @@
+#' @export
 hist.evmOpt <-
 function(x, xlab, ylab, main, ...){
     # Want parameters as a matrix with one row for passing
     # through to family$rng etc.
-    a <- t(x$coefficients)
-    u <- x$threshold
-    if (!is.finite(u)){ u <- min(x$data$y) }
+    co <- t(x$coefficients)
+    th <- x$threshold
+    if (!is.finite(th))
+      th <- min(x$data$y)
 
-    # FOLLOWING if BLOCK COMMENTED OUT TO ACCOUNT FOR DIFFERENCE
-    # BETWEEN GEV AND GPD. MIGHT HAVE TO DO SOMETHING MORE
-    # SENSIBLE LATER.
-#    if(a[2] < 0){
-#         UpperEndPoint <- u - a[1]/a[2]
-#    }
-#    else {
-        UpperEndPoint <- Inf
-#    }
+    UpperEndPoint <- x$family$endpoint(co, x)
 
     dat <- x$data$y
     dfun <- x$family$density
 
     h <- hist(dat, plot = FALSE)
-    xx <- seq(u, min(UpperEndPoint, max(h$breaks)), length = 100)
-    y <- dfun(xx, a, x)
-
-    breaks <- seq(from=min(dat),to=max(dat),len=nclass.Sturges(dat)+1)
+    xx <- seq(th, min(UpperEndPoint, max(h$breaks)), length = 100)
+    y <- dfun(xx + .Machine$double.eps, co, x)
+    breaks <- seq(from=min(dat), to=max(dat), len=nclass.Sturges(dat) + 1)
 
     res <- list(dat=dat, dens=cbind(x=xx, y=y), breaks=breaks)
     oldClass(res) <- "hist.evmOpt"
     res
 }
 
+#' @export
 plot.hist.evmOpt <- function(x, xlab=NULL, ylab=NULL, main=NULL, ...){
 
     if (missing(xlab) || is.null(xlab)) xlab <- "Data"
@@ -43,5 +37,9 @@ plot.hist.evmOpt <- function(x, xlab=NULL, ylab=NULL, main=NULL, ...){
     invisible()
 }
 
-print.hist.evmOpt <- plot.hist.evmOpt
+#' @export
+print.hist.evmOpt <- function(x, xlab=NULL, ylab=NULL, main=NULL, ...){
+    plot.hist.evmOpt(x, xlab=xlab, ylab=ylab, main=main, ...)
+    invisible(x)
+}
 

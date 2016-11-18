@@ -1,5 +1,9 @@
+#' @include texmexFamily.R
+#' @export gev
+NULL
+
 gev <- texmexFamily(name = 'GEV',
-                    param = c('mu', 'phi', 'xi'),
+                    param = c(mu=0, phi=0, xi=0),
                     log.lik = function(data, ...) {
                                 y <- data$y
                                 X.mu <- data$D$mu
@@ -20,6 +24,7 @@ gev <- texmexFamily(name = 'GEV',
                                 }
                     }, # Close log.lik
                     info = NULL, # will mean that numerical approx gets used
+                    sandwich = NULL, # not yet implemented sandwich estimator of covariance matrix for this family
                     delta = function(param, m, model){ # model not used but required by a calling function
                               y <- -log(1 - 1/m)
                               out <- rep(1, 3)

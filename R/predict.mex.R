@@ -1,5 +1,7 @@
+#' @rdname mex
+#' @export
 `predict.mex` <-
-function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
+function(object, which, pqu = .99, nsim = 1000, trace=10, smoothZdistribution=FALSE, ...){
 	theCall <- match.call()
 
   # Class can be either mex or bootmex
@@ -13,7 +15,7 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
       migpd <- object$simpleMar
       margins <- object$margins
       constrain <- object$constrain
-      dall <- mexDependence( migpd , which=which , dqu=object$dqu, margins = margins, constrain=constrain )
+      dall <- mexDependence( migpd , which=which , dqu=object$dqu, margins = margins[[1]], constrain=constrain )
   } else {
       which <- object$dependence$which
       migpd <- object$margins
@@ -25,15 +27,13 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
 	################################################################
   MakeThrowData <- function(dco,z,coxi,coxmi,data){
     ui <- runif( nsim , min=pqu )
-    if( margins == "gumbel"){
-      y <- -log( -log( ui ) )
-      distFun <- function(x) exp(-exp(-x))
-    } else if (margins == "laplace"){
-      y <- ifelse(ui < .5,  log(2 * ui), -log(2 * (1 - ui) ))
-      distFun <- function(x) ifelse(x<0, exp(x)/2, 1-exp(-x)/2)
-    }
+    y <- margins$p2q(ui)
+    distFun <- margins$q2p
 
     z <- as.matrix(z[ sample( 1:( dim( z )[ 1 ] ), size=nsim, replace=TRUE ) ,])
+    if(smoothZdistribution){
+        z <- apply(z,2,function(x)x + rnorm(length(x),0,bw.nrd(x)))
+    }
     ymi <- sapply( 1:( dim( z )[[ 2 ]] ) , makeYsubMinusI, z=z, v=dco , y=y )
 
     xmi <- apply( ymi, 2, distFun )
@@ -48,6 +48,7 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
 	  }
     sim <- data.frame( xi , xmi )
     names( sim ) <- c( colnames( migpd$data )[ which ], colnames( migpd$data )[ -which ])
+    sim[,dim(sim)[2]+1] <- y > apply(ymi,1,max)
     sim
   }
 
@@ -70,19 +71,20 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
   ###############################################################
   if (theClass == "bootmex"){
 	# The function lfun does most of the work
-  lfun <- function( i , bo, pqu, nsim , migpd, which ){
+    lfun <- function( i , bo, pqu, nsim , migpd, which ){
 	   if ( i %% trace == 0 ) cat( i, "sets done\n" )
 
-     res <- MakeThrowData(dco=bo[[ i ]]$dependence,z=bo[[ i ]]$Z, coxi = bo[[i]]$GPD[,which],
-                          coxmi = as.matrix(bo[[ i ]]$GPD[,-which]),
-                          data = bo[[i]]$Y)
-	   res
-  }
+       res <- MakeThrowData(dco=bo[[ i ]]$dependence,z=bo[[ i ]]$Z, coxi = bo[[i]]$GPD[,which],
+                            coxmi = as.matrix(bo[[ i ]]$GPD[,-which]),
+                            data = bo[[i]]$Y)
+	   res <- res[,-dim(res)[2]]
+       res
+    }
 
-	bootRes <- lapply( 1:length( object$boot ) , lfun ,
+    bootRes <- lapply( 1:length( object$boot ) , lfun ,
 	        			    migpd=migpd, pqu=pqu, bo = object$boot, nsim=nsim,
 	        			    which = which )
-	    # bootRes contains the bootstrap simulated complete vectors X on the original
+	  # bootRes contains the bootstrap simulated complete vectors X on the original
       # scale of the data, conditional on having the _which_ component above the pqu quantile.
 	} else {
     bootRes <- NULL
@@ -96,12 +98,14 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
   coxmi <- as.matrix(coef(migpd)[3:4, -which])
 
   sim <- MakeThrowData(dco=dall$dependence$coefficients,z=dall$dependence$Z,coxi=cox,coxmi=coxmi,data=migpd$data)
-
+  CondLargest <- sim[,dim(sim)[2]]
+  sim <- sim[,-dim(sim)[2]]
+  
   m <- 1 / ( 1 - pqu ) # Need to estimate pqu quantile
- 	zeta <- 1 - migpd$mqu[ which ] # Coles, page 81
-	pth <- migpd$mth[ which ] + cox[ 1 ] / cox[ 2 ] * ( ( m*zeta )^cox[ 2 ] - 1 )
+  zeta <- 1 - migpd$mqu[ which ] # Coles, page 81
+  pth <- migpd$mth[ which ] + cox[ 1 ] / cox[ 2 ] * ( ( m*zeta )^cox[ 2 ] - 1 )
 
-	data <- list( real = data.frame( migpd$data[, which ], migpd$data[, -which] ), simulated = sim, pth=pth)
+  data <- list( real = data.frame( migpd$data[, which ], migpd$data[, -which] ), simulated = sim, pth=pth,CondLargest=CondLargest)
   names(data$real)[1] <- colnames(migpd$data)[which]
 
   res <- list( call = theCall , replicates = bootRes, data = data,
@@ -113,4 +117,3 @@ function(object, which, pqu = .99, nsim = 1000, trace=10, ...){
 
   res
 }
-

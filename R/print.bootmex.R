@@ -1,3 +1,4 @@
+#' @export
 print.bootmex <- function(x , ... ){
   print(x$call )
   cat(paste( "\n", x$R, " bootstrap samples created.\n\n" , sep = "" ) )
@@ -12,5 +13,5 @@ print.bootmex <- function(x , ... ){
   cat( paste("Dependence structure estimation successful for", eff, "effective samples.\n" ) )
 #  cat( paste("Dependence structure bootstrap mean parameter estimates:\n" ))
   cat("\n")
-  invisible()
+  invisible(x)
 }

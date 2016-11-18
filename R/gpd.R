@@ -1,3 +1,9 @@
+#' @include texmexFamily.R
+#' @include gpd.info.R
+#' @include gpd.sandwich.R
+#' @export gpd
+NULL
+
 gpd <- texmexFamily(name = 'GPD',
                    log.lik = function(data, th, ...) {
                                y <- data$y
@@ -10,10 +16,11 @@ gpd <- texmexFamily(name = 'GPD',
                                  phi <- X.phi %*% param[1:n.phi]
                                  xi <- X.xi %*% param[(1 + n.phi):n.end]
                                  sum(dgpd(y, exp(phi), xi, u=th, log.d=TRUE))
-                                }
+                               }
                    }, # Close log.lik
-                   param = c('phi', 'xi'),
+                   param = c(phi=0, xi=0),
                    info = gpd.info,
+                   sandwich = gpd.sandwich,
                    start = function(data){
                              y <- data$y
                              X.phi <- data$D[[1]]
@@ -28,7 +35,9 @@ gpd <- texmexFamily(name = 'GPD',
                     }, # Close resid
 
                     endpoint = function(param, model){
-                                 model$threshold - exp(param[, 1]) / param[, 2]
+                        res <- model$threshold - exp(param[, 1]) / param[, 2]
+                        res[param[, 2] >= 0] <- Inf
+                        res
                     },
                     rl = function(m, param, model){
                       ## write in terms of qgpd; let's not reinvent the wheel
@@ -44,9 +53,10 @@ gpd <- texmexFamily(name = 'GPD',
                              if (param[3] == 0){ # exponential case
                                out[1,] <- exp(param[2]) * log(m * param[1])
                              } else {
+                             # Next line contains exp(param[2]) because the derivative is of log(sigma), unlike in Coles page 82
                              out[1,] <- exp(param[2]) / param[3] * ((m * param[1])^param[3] - 1)
                              out[2,] <- -exp(param[2]) / (param[3] * param[3]) * ( (m * param[1] )^param[3] - 1 ) +
-                             exp(param[2]) / param[3] * (m * param[1])^param[3] * log(m * param[1])
+                                        exp(param[2]) / param[3] * (m * param[1])^param[3] * log(m * param[1])
                              }
                              out
                     }, # Close delta

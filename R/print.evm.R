@@ -1,4 +1,5 @@
-print.evmOpt <- function( x , digits=max(3, getOption("digits") - 3), ... ){
+#' @export
+print.evmOpt <- function(x , digits=max(3, getOption("digits") - 3), ... ){
     cat( "Call: " )
     print( x$call, ... )
     print(x$family, verbose=FALSE)
@@ -21,7 +22,7 @@ print.evmOpt <- function( x , digits=max(3, getOption("digits") - 3), ... ){
     }
 
     cat("\n\n")
-    
+
     if (x$penalty == "none"){
       wh <- t(format(c(x$loglik, AIC(x)), digits, ...))
       colnames(wh) <- c("Log. lik", "AIC")
@@ -40,5 +41,5 @@ print.evmOpt <- function( x , digits=max(3, getOption("digits") - 3), ... ){
     cat( "\n\nCoefficients:\n" )
     print.default(format(co, digits=digits, ...), print.gap=2, quote=FALSE)
     cat( "\n" )
-    invisible()
+    invisible(x)
 }

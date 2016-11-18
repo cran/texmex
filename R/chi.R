@@ -1,3 +1,109 @@
+#' Measures of extremal dependence
+#' 
+#' Compute measures of extremal dependence for 2 variables.
+#' 
+#' Computes the functions chi and chi-bar described by Coles, Heffernan and
+#' Tawn (1999). The limiting values of these functions as the quantile
+#' approaches 1 give an empirical measure of the type and strength of tail
+#' dependendce exhibited by the data.
+#' 
+#' A limiting value of ChiBar equal to 1 indicates Asymptotic Dependence, in
+#' which case the limiting value of Chi gives a measure of the strength of
+#' dependence in this class.  A limiting value of ChiBar of less than 1
+#' indicates Asymptotic Independence in which case Chi is irrelevant and the
+#' limiting value of ChiBar gives a measure of the strength of dependence.
+#' 
+#' The plot and ggplot methods show the ChiBar and Chi functions.  In the case of the
+#' confidence interval for ChiBar excluding the value 1 for all of the largest
+#' quantiles, the plot of the Chi function is shown in grey.
+#' 
+#' @aliases chi summary.chi plot.chi print.chi ggplot.chi print.summary.chi
+#' 
+#' @usage chi(data, nq = 100, qlim = NULL, alpha = 0.05, trunc = TRUE)
+#' 
+#' \method{summary}{chi}(object, ...)
+#' 
+#' \method{print}{summary.chi}(x, digits=3, ...)
+#' 
+#' \method{print}{chi}(x, ...)
+#'
+#' \method{plot}{chi}(x, show=c("Chi"=TRUE,"ChiBar"=TRUE), lty=1,
+#' cilty=2, col=1, spcases=TRUE, cicol=1, xlim=c(0, 1), ylimChi =
+#' c(-1, 1), ylimChiBar = c(-1, 1), mainChi = "Chi", mainChiBar =
+#' "Chi Bar", xlab = "Quantile", ylabChi =
+#' expression(chi(u)), ylabChiBar = expression(bar(chi)(u)),
+#' ask, ...)
+#' 
+#' \method{ggplot}{chi}(data=NULL, mapping, xlab = "Quantile", 
+#' ylab=c("ChiBar" = expression(bar(chi)(u)), "Chi" = expression(chi(u))),
+#' main=c("ChiBar" = "Chi Bar",       "Chi" = "Chi"),
+#' xlim = c(0, 1), ylim =list("Chi" = c(-1, 1),"ChiBar" = c(-1, 1)),
+#' ptcol="blue",fill="orange",show=c("ChiBar"=TRUE,"Chi"=TRUE),
+#' spcases = TRUE,plot., ..., environment)
+#' 
+#' @param data A matrix containing 2 numeric columns.
+#' @param nq The number of quantiles at which to evaluate the dependence
+#' measures.
+#' @param qlim The minimum and maximum quantiles at which to do the evaluation.
+#' @param alpha The size of the confidence interval to be used. Defaults to
+#' \code{alpha = 0.05}.
+#' @param trunc Logical flag indicating whether the estimates should be
+#' truncated at their theoretical bounds.  Defaults to \code{trunc = TRUE}.
+#' @param x,object An object of class \code{chi}.
+#' @param digits Number of digits for printing.
+#' @param show Logical, of length 2, names "Chi" and "ChiBar".  Defaults to\cr
+#' \code{c("Chi" = TRUE, "ChiBar" = TRUE)}.
+#' @param lty,cilty,col,cicol Line types and colours for the the estimated
+#' quantities and their confidence intervals.
+#' @param xlim,ylimChi,ylimChiBar Limits for the axes.
+#' @param mainChi,mainChiBar Main titles for the plots.
+#' @param xlab,ylabChi,ylabChiBar Axis labels for the plots.
+#' @param mapping,ylab,main,ylim,ptcol,fill,environment Arguments to ggplot methods.
+#' @param spcases Whether or not to plot special cases of perfect (positive and
+#' negative) dependence and indpenendence. Defaults to \code{FALSE}.
+#' @param plot. whether to plot to active graphics device.
+#' @param ask Whether or not to ask before reusing the graphics device.
+#' @param ... Further arguments to be passed to methods.
+#' @return An object of class \code{chi} containing the following.
+#' 
+#' \item{chi}{Values of chi and their estimated upper and lower confidence
+#' limits.} \item{chibar }{Values of chibar and their estimated upper and lower
+#' confidence limits.} \item{quantile}{The quantiles at which chi and chi-bar
+#' were evaluated.} \item{chiulb, chibarulb}{Upper and lower bounds for chi and
+#' chi-bar.}
+#' @note When the data contain ties, the values of chi and chibar are
+#' calculated by assigning distinct ranks to tied values using the \code{rank}
+#' function with argument \code{ties.method = "first"}.  This results in the
+#' values of chi and chibar being sensitive to the order in which the tied
+#' values appear in the data.
+#' 
+#' The code is a fairly simple reorganization of code written by Janet E.
+#' Heffernan and Alec Stephenson and which appears in the \code{chiplot}
+#' function in the \code{evd} package.
+#' @author Janet E. Heffernan, Alec Stephenson, Harry Southworth
+#' @seealso \code{\link{MCS}}, \code{\link{rank}}
+#' @references S. Coles, J. E. Heffernan and J. A. Tawn, Dependence measures
+#' for extreme values analyses, Extremes, 2, 339 -- 365, 1999.
+#' 
+#' A. G. Stephenson. evd: Extreme Value Distributions, R News, 2, 2002.
+#' @keywords multivariate
+#' @examples
+#' 
+#' 
+#' D <- liver[liver$dose == "D",]
+#' chiD <- chi(D[, 5:6])
+#' par(mfrow=c(1,2))
+#' ggplot(chiD)
+#' 
+#' A <- liver[liver$dose == "A",]
+#' chiA <- chi(A[, 5:6])
+#' # here the limiting value of chi bar(u) lies away from one so the chi plot is
+#' # not relevant and is plotted in grey
+#' ggplot(chiA) 
+#' 
+#' 
+#' 
+#' @export chi
 chi <- 
   # Much of the code in here was written by Alec Stephenson
   # and comes from his 'chiplot' function in his 'evd' package.
@@ -82,18 +188,16 @@ function (data, nq = 100, qlim = NULL, alpha = 0.05, trunc = TRUE) {
 } # Close chi <- function
 
 
+#' @export
 print.chi <- function(x, ...){
     print(x$call,...)
     cat("Values of chi and chi-bar obtained and",
          length(x$quantile), "quantiles.\n")
-    invisible()
+    invisible(x)
 }
 
-summary.chi <- function(object, digits=3, ...){
-    print(object$call)
-    cat("Values of chi and chi-bar obtained and",
-         length(object$quantile), "quantiles.\n")
-
+#' @export
+summary.chi <- function(object, ...){
     wh <- quantile(object$quantile, prob=c(.05, .5, .95))
     wh <- sapply(wh, function(i, u){
                         d <- abs(u - i)
@@ -103,13 +207,25 @@ summary.chi <- function(object, digits=3, ...){
     chiQ <- object$chi[object$quantile %in% wh, 2]
     chibarQ <- object$chibar[object$quantile %in% wh, 2]
 
-    res <- rbind(wh, chiQ, chibarQ)
-    dimnames(res) <- list(c("quantile", "chi", "chi-bar"), rep("", 3))
-    print(res, digits=digits, ...)
-    invisible(res)
+    out <- rbind(wh, chiQ, chibarQ)
+    dimnames(out) <- list(c("quantile", "chi", "chi-bar"), rep("", 3))
+    res <- list(out=out,call=object$call,quantile=object$quantile)
+    oldClass(res) <- "summary.chi"
+    res
 }
 
+#' @export
+print.summary.chi <- function(x,digits=3,...){
+    cat("Call: ")
+    print(x$call)
+    cat("Values of chi and chi-bar obtained at",
+        length(x$quantile), "quantiles.\n")
+    
+    print(x$out, digits=digits, ...)
+    invisible(x)
+}
 
+#' @export
 plot.chi <- function(x, show=c("Chi"=TRUE,"ChiBar"=TRUE), lty = 1, cilty = 2, col = 1, spcases = TRUE, cicol = 1,
                      xlim = c(0, 1), ylimChi = c(-1, 1), ylimChiBar = c(-1, 1),
                      mainChi = "Chi", mainChiBar = "Chi Bar",
@@ -168,3 +284,67 @@ plot.chi <- function(x, show=c("Chi"=TRUE,"ChiBar"=TRUE), lty = 1, cilty = 2, co
   invisible()
 }
 
+#' @export
+ggplot.chi <- function(data=NULL, mapping, 
+                       xlab = "Quantile", 
+                       ylab=c("ChiBar" = expression(bar(chi)(u)),
+                              "Chi" = expression(chi(u))),
+                       main=c("ChiBar" = "Chi Bar",
+                              "Chi" = "Chi"),
+                       xlim = c(0, 1), 
+                       ylim =list("Chi" = c(-1, 1), 
+                               "ChiBar" = c(-1, 1)),
+                       ptcol="blue",
+                       fill="orange",
+                       show=c("ChiBar"=TRUE,
+                              "Chi"=TRUE),
+                       spcases = TRUE,
+                       plot.=TRUE,
+                       ..., environment){
+    
+    ChiBarAsympIndep <- prod(tail(data$chibar[,3]) < 1)
+    
+    dat <- data.frame(qu = data$quantile, 
+                      chi = data$chi[,"chi"], 
+                      chibar = data$chibar[,"chib"])
+    
+    poly <- data.frame(qu = c(data$quantile,rev(data$quantile)),
+                       chi = c(data$chi[,"chilow"],rev(data$chi[,"chiupp"])),
+                       chibar = c(data$chibar[,"chiblow"],rev(data$chibar[,"chibupp"])))
+    
+    if (show["ChiBar"]) {
+        p1 <- ggplot(dat,aes(qu,chibar)) + 
+            geom_line(colour=ptcol) + 
+            geom_polygon(data=poly,mapping=aes(qu,chibar),fill=fill,alpha=0.5) +
+            coord_cartesian(xlim=xlim,ylim=ylim$ChiBar) +
+            labs(x=xlab,y=ylab["ChiBar"],title=main["ChiBar"])
+        
+        if (spcases) {
+            p1 <- p1 + 
+                geom_line(data=data.frame(x=data$qlim,y=c(0,0)),aes(x,y),col="grey") +
+                geom_line(data=data.frame(x=data$qlim,y=c(1,1)),aes(x,y),col="grey") + 
+                geom_line(data=data.frame(x=data$qlim,y=c(-1,-1)),aes(x,y),col="grey") 
+        }
+    }
+    if (show["Chi"]) {
+        if (ChiBarAsympIndep) {
+            ptcol <- "dark grey"
+            fill <- "grey"
+        }
+        p2 <- ggplot(dat,aes(qu,chi)) + 
+            geom_line(colour=ptcol) + 
+            geom_polygon(data=poly,mapping=aes(qu,chi),fill=fill,alpha=0.5) +
+            coord_cartesian(xlim=xlim,ylim=ylim$Chi) +
+            labs(x=xlab,y=ylab["Chi"],title=main["Chi"])
+        
+        if (spcases) {
+            p2 <- p2 + 
+                geom_line(data=data.frame(x=data$qlim,y=c(0,0)),aes(x,y),col="grey") +
+                geom_line(data=data.frame(x=data$qlim,y=c(1,1)),aes(x,y),col="grey") + 
+                geom_line(data=data.frame(x=data$quantile,y=data$chiulb),aes(x,y),col="grey")
+        }
+    }
+    
+    if(plot.)gridExtra::grid.arrange(p1,p2,ncol=2)
+    invisible(list(p1,p2))
+}

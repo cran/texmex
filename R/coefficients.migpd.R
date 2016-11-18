@@ -1,4 +1,5 @@
-coefficients.migpd <-
+#' @export
+coef.migpd <-
 function(object, ...){
     co <- sapply(object$models, function(x) x$coefficients)
     up <- sapply(object$models, function(x) endPoint(x,verbose=FALSE))
@@ -8,7 +9,5 @@ function(object, ...){
     co[3, ] <- exp(co[3, ])
     co
 }
-
-coef.migpd <- coefficients.migpd
 
 

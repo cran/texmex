@@ -1,5 +1,0 @@
-library(knitr)
-knit("texmex1d.Rnw")
-knit("texmexMultivariate.Rnw")
-knit("declustering.Rnw")
-q()
