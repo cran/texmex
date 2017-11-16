@@ -4,6 +4,8 @@
 \alias{ggplot.migpd}
 \alias{migpd}
 \alias{plot.migpd}
+\alias{ggplot.migpd}
+\alias{plot.migpd}
 \title{Fit multiple independent generalized Pareto models}
 \usage{
 \method{ggplot}{migpd}(data, mapping = NULL, main = c("Probability plot",
@@ -119,12 +121,9 @@ mygpd <- migpd(winter, mqu=.7, penalty = "none")
 mygpd
 summary(mygpd)
 plot(mygpd)
-#ggplot(mygpd)
+g <- ggplot(mygpd)
 
 
-}
-\author{
-Harry Southworth
 }
 \references{
 J. E. Heffernan and J. A. Tawn, A conditional approach for
@@ -139,6 +138,8 @@ genralized Pareto distribution, Technometrics, 29, 339 -- 349, 1987
 \code{\link{bootmex}}, \code{\link{predict.mex}}, \code{\link{gpdRangeFit}},
 \code{\link{mrl}}
 }
+\author{
+Harry Southworth
+}
 \keyword{models}
 \keyword{multivariate}
-

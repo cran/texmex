@@ -1,3 +1,7 @@
+#' Print evmOpt objects
+#' @param x a fit evmOpt object
+#' @param digits number of digits used for printing
+#' @param ... further arguments passed to \code{\link{format}}
 #' @export
 print.evmOpt <- function(x , digits=max(3, getOption("digits") - 3), ... ){
     cat( "Call: " )
@@ -25,13 +29,13 @@ print.evmOpt <- function(x , digits=max(3, getOption("digits") - 3), ... ){
 
     if (x$penalty == "none"){
       wh <- t(format(c(x$loglik, AIC(x)), digits, ...))
-      colnames(wh) <- c("Log. lik", "AIC")
+      colnames(wh) <- c("Log. lik", "AIC","DIC")
       rownames(wh) <- ""
       print(wh, print.gap=2, quote=FALSE, justify="left")
     }
     else {
       wh <- t(format(c(x$loglik, x$ploglik, AIC(x)), digits, ...))
-      colnames(wh) <- c("Log lik.", "Penalized log lik.", "AIC")
+      colnames(wh) <- c("Log lik.", "Penalized log lik.", "AIC", "DIC")
       rownames(wh) <- ""
       print(wh, print.gap=2, quote=FALSE, justify="left")
     }

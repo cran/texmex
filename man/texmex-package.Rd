@@ -2,15 +2,15 @@
 % Please edit documentation in R/texmex-package.R
 \docType{package}
 \name{texmex-package}
-\alias{texmex}
 \alias{texmex-package}
+\alias{texmex}
 \title{Extreme value modelling}
 \description{
 Extreme values modelling, including the conditional multivariate approach of
 Heffernan and Tawn (2004).
 }
 \details{
-\tabular{ll}{ Package: \tab mex\cr Type: \tab Package\cr Version: \tab
+\tabular{ll}{ Package: \tab texmex\cr Type: \tab Package\cr Version: \tab
 2.3\cr Date: \tab 2014-03-03\cr License: \tab GPL (>=2) | BSD\cr } The
 packages was originally called `texmex' for Threshold EXceedances and
 Multivariate EXtremes. However, it is no longer the case that only threshold
@@ -49,27 +49,27 @@ mypred <- predict(myboot,  pqu=.95)
 summary(mypred , probs = c( .025, .5, .975 ))
 
 # Analyse the liver data included in the package
-#library(MASS) # For the rlm function
+library(MASS) # For the rlm function
 
-#liver <- liver[liver$ALP.M > 1,] # Get rid of outlier
-#liver$ndose <- as.numeric(liver$dose)
+liver <- liver[liver$ALP.M > 1,] # Get rid of outlier
+liver$ndose <- as.numeric(liver$dose)
 
-#alt <- resid(rlm(log(ALT.M) ~ log(ALT.B) + ndose, data=liver, method="MM"))
-#ast <- resid(rlm(log(AST.M) ~ log(AST.B) + ndose, data=liver, method="MM"))
-#alp <- resid(rlm(log(ALP.M) ~ log(ALP.B) + ndose, data=liver, method="MM"))
-#tbl <- resid(rlm(log(TBL.M) ~ log(TBL.B) + ndose, data=liver, method="MM"))
+alt <- resid(rlm(log(ALT.M) ~ log(ALT.B) + ndose, data=liver, method="MM"))
+ast <- resid(rlm(log(AST.M) ~ log(AST.B) + ndose, data=liver, method="MM"))
+alp <- resid(rlm(log(ALP.M) ~ log(ALP.B) + ndose, data=liver, method="MM"))
+tbl <- resid(rlm(log(TBL.M) ~ log(TBL.B) + ndose, data=liver, method="MM"))
 
-#r <- data.frame(alt=alt, ast=ast, alp=alp, tbl=tbl)
+r <- data.frame(alt=alt, ast=ast, alp=alp, tbl=tbl)
 
-#Amex <- mex(r[liver$dose == "A",], mqu=.7)
-#Bmex <- mex(r[liver$dose == "B",], mqu=.7)
-#Cmex <- mex(r[liver$dose == "C",], mqu=.7)
-#Dmex <- mex(r[liver$dose == "D",], mqu=.7)
+Amex <- mex(r[liver$dose == "A",], mqu=.7)
+Bmex <- mex(r[liver$dose == "B",], mqu=.7)
+Cmex <- mex(r[liver$dose == "C",], mqu=.7)
+Dmex <- mex(r[liver$dose == "D",], mqu=.7)
 
-#par(mfcol=c(3,3))
-#plot(Amex)
+par(mfcol=c(3,3))
+plot(Amex)
 
-#plot(Dmex, col="blue")
+plot(Dmex, col="blue")
 
 ## Take a closer look at the marginal behaviour of ALT
 # Lines commented out to keep CRAN checks short
@@ -110,13 +110,6 @@ summary(mypred , probs = c( .025, .5, .975 ))
 # estimate proportion exceeding 3*upper limit of normal mean(res >
 # 36 * 3) # 36 is the upper limit of normal for ALT
 }
-\author{
-Harry Southworth, Janet E. Heffernan
-
-Maintainer: Harry Southworth <harry.southworth@gmail.com>
-
-URL: https://github.com/harrysouthworth/texmex
-}
 \references{
 J. E. Heffernan and J. A. Tawn, A conditional approach for
 multivariate extreme values, Journal of the Royal Statistical society B, 66,
@@ -125,7 +118,13 @@ multivariate extreme values, Journal of the Royal Statistical society B, 66,
 C.A.T Ferro and J. Segers, Inference for Clusters of Extreme Values, Journal
 of the Royal Statistical society B, 65, 545 -- 556, 2003.
 }
+\author{
+Harry Southworth, Janet E. Heffernan
+
+Maintainer: Harry Southworth <harry.southworth@gmail.com>
+
+URL: https://github.com/harrysouthworth/texmex
+}
 \keyword{models}
 \keyword{multivariate}
 \keyword{package}
-

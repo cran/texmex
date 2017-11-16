@@ -2,7 +2,7 @@
 #'
 #' This runs a parametric bootstrap simulating from an optimized
 #' model.
-#'
+#' 
 #' @param o a fit \code{evmOpt} object
 #' @param R the number of parametric bootstrap samples to run
 #' @param trace the frequency of trace messages
@@ -10,25 +10,26 @@
 #'     to \code{cores=NULL} and the function guesses how many cores
 #'     are available and uses them all.
 #' @param theCall (for internal use)
-#' @param ... Arguments passed to \code{ggplot}. Not used.
-#' @param x An object of class 'evmBoot'.
-#' @param object An object of class 'evmBoot'.
-#' @param col Colour to be used in plotting. Defaults to \code{col=4}.
-#' @param border Border colour for histogram. Defaults to \code{border=NULL}.
+#' @param x an \code{\link{evmBoot}} object
+#' @param col colour used to fill histogram
+#' @param border the colour of the border around the bars
+#' @param object a \code{\link{evmBoot}} object
+#' @param ... other arguments passed to internal functions
 #' @return An object of class \code{evmBoot}; a list with
+#'
 #' \item{call}{The call to \code{evmBoot} that produced the object.}
 #' \item{replicates}{The parameter estimates from the bootstrap fits.}
 #' \item{map}{The fit by by maximum penalized likelihood to the original data.}
-#'
+#' 
 #' @aliases evmBoot summary.evmBoot plot.evmBoot coef.evmBoot print.summary.evmBoot print.evmBoot
-#'
+#' 
 #' @usage evmBoot(o, R=1000, trace=100, cores=NULL, theCall)
 #' \method{summary}{evmBoot}(object,...)
 #' \method{plot}{evmBoot}(x,col=4,border=NULL,...)
 #' \method{coef}{evmBoot}(object,...)
 #' \method{print}{summary.evmBoot}(x,...)
 #' \method{print}{evmBoot}(x,...)
-#'
+#' 
 #' @note It is not expected that a user will need to call
 #'     this function directly; you are directed to \code{\link{evm}}.
 #' @seealso \code{\link{evm}}
@@ -157,3 +158,4 @@ plot.evmBoot <- function(x, col=4, border=NULL, ...){
     }
     invisible()
 }
+
