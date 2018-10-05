@@ -54,7 +54,7 @@
 #' the mean bias is the correct thing to do.
 #' 
 #' @aliases bootmex print.bootmex plot.bootmex
-#' @usage bootmex(x, R = 100, nPass=3, trace=10)
+#' @usage bootmex(x, R = 100, nPass=3, trace=10,referenceMargin=NULL)
 #' 
 #' \method{plot}{bootmex}(x, plots = "gpd", main = "", ...)
 #' \method{print}{bootmex}(x, ...)
@@ -67,6 +67,7 @@
 #' giving up.
 #' @param trace How often to inform the user of progress. Defaults to
 #' \code{trace=10}.
+#' @param referenceMargin Optional set of reference marginal distributions to use for marginal transformation if the data's own marginal distribution is not appropriate (for instance if only data for which one variable is large is available, the marginal distributions of the other variables will not be represented by the available data).  This object can be created from a combination of datasets and fitted GPDs using the function \code{makeReferenceMarginalDistribution}.
 #' @param plots What type of diagnostic plots to produce.  Defaults to "gpd" in
 #' which case gpd parameter estimate plots are produced otherwise plots are
 #' made for the dependence parameters.
@@ -93,7 +94,7 @@
 #' @export bootmex
 bootmex <-
     # Bootstrap inference for a conditional multivaratiate extremes model.
-function (x, R = 100, nPass = 3, trace = 10) {
+function (x, R = 100, nPass = 3, trace = 10,referenceMargin=NULL) {
     theCall <- match.call()
     if (class(x) != "mex"){
       stop("object must be of type 'mex'")
@@ -135,7 +136,7 @@ function (x, R = 100, nPass = 3, trace = 10) {
     ans$constrain <- constrain
 
     innerFun <- function(i, x, which, dth, dqu, margins, penalty, priorParameters, constrain, v=v, start=start,
-        pass = 1, trace = trace, n=n, d=d, getTran=getTran, dependent=dependent) {
+        pass = 1, trace = trace, n=n, d=d, getTran=getTran, dependent=dependent,referenceMargin=referenceMargin) {
 
         g <- sample(1:(dim(mar$transformed)[[1]]), size = n, replace = TRUE)
         g <- mar$transformed[g, ]
@@ -157,7 +158,7 @@ function (x, R = 100, nPass = 3, trace = 10) {
         ggpd <- migpd(g, mth = mar$mth,
                       penalty = penalty, priorParameters = priorParameters)
 
-        gd <- mexDependence(ggpd, dqu = dqu, which = which, margins=margins[[1]], constrain=constrain, v=v, start=start)
+        gd <- mexDependence(ggpd, dqu = dqu, which = which, margins=margins[[1]], constrain=constrain, v=v, start=start,referenceMargin=referenceMargin)
         res <- list(GPD = coef(ggpd)[3:4, ],
                     dependence = gd$dependence$coefficients,
                     Z = gd$dependence$Z,
@@ -173,7 +174,7 @@ function (x, R = 100, nPass = 3, trace = 10) {
 
     res <- lapply(1:R, innerFun, x = x, which = which, dth = dth, margins=margins,
         dqu = dqu, penalty = penalty, priorParameters = priorParameters, constrain=constrain, v=v, start=start,
-        pass = 1, trace = trace, getTran=getTran, n=n, d=d, dependent=dependent)
+        pass = 1, trace = trace, getTran=getTran, n=n, d=d, dependent=dependent,referenceMargin=referenceMargin)
 
     # Sometimes samples contain no extreme values. Need to have another pass or two
     if (nPass > 1) {
@@ -187,7 +188,7 @@ function (x, R = 100, nPass = 3, trace = 10) {
                 res[rerun] <- lapply((1:R)[rerun], innerFun,
                   x = x, which = which, dth = dth, dqu = dqu, margins=margins,
                   penalty = penalty, priorParameters = priorParameters, constrain=constrain, v=v, start=start,
-                  pass = pass, trace = trace, getTran=getTran, n=n, d=d, dependent=dependent)
+                  pass = pass, trace = trace, getTran=getTran, n=n, d=d, dependent=dependent,referenceMargin=referenceMargin)
             }
         }
     }

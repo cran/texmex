@@ -9,10 +9,11 @@
 \alias{ggplotrl}
 \title{Diagnostic plots for an evm object}
 \usage{
-\method{ggplot}{evmOpt}(data, mapping, which = 1:4, main = rep(NULL, 4),
-  xlab = rep(NULL, 4), nsim = 1000, alpha = 0.05, jitter.width = 0,
-  ptcol = "blue", span = 2/3, col = "light blue", fill = "orange",
-  plot. = TRUE, ncol = 2, nrow = 2, ..., environment)
+\method{ggplot}{evmOpt}(data, mapping, which = 1:4, main = rep(NULL,
+  4), xlab = rep(NULL, 4), nsim = 1000, alpha = 0.05,
+  jitter.width = 0, ptcol = "blue", span = 2/3, col = "light blue",
+  fill = "orange", plot. = TRUE, ncol = 2, nrow = 2, ...,
+  environment)
 }
 \arguments{
 \item{data}{An object of class \code{evm}.}
@@ -65,7 +66,8 @@ plot. Defaults to \code{nrow=2}. This argument is passed into
 functions.}
 }
 \description{
-Create and display diagnostic plots for an evm object.
+Create and display diagnostic plots for an evm object. See \code{\link{plot.evmOpt}}
+for further details on what is being plotted.
 }
 \details{
 The function attempts to arrange the plots nicely. If the
@@ -74,5 +76,8 @@ The function attempts to arrange the plots nicely. If the
     \code{grid.arrange} directly.  Also, if you have one or more
     covariates in the model and the loess smoother looks wrong, try
     setting \code{span=1}.
+}
+\seealso{
+\code{\link{plot.evmOpt}}
 }
 \keyword{hplot}

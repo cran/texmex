@@ -7,8 +7,8 @@
 \title{Plotting function for return level estimation}
 \usage{
 \method{ggplot}{rl.evmOpt}(data = NULL, mapping, xlab, ylab, main,
-  ylim = "auto", ptcol = "blue", col = "light blue", fill = "orange",
-  alpha = 0.5, ..., environment)
+  ylim = "auto", ptcol = "blue", col = "light blue",
+  fill = "orange", alpha = 0.5, ..., environment)
 }
 \arguments{
 \item{data}{An object of class \code{rl.evmOpt}, \code{rl.evmBoot}, \code{rl.evmSim}, \code{lp.evmOpt}, \code{lp.evmBoot} or \code{lp.evmSim}, .}

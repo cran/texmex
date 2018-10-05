@@ -14,7 +14,7 @@
 #' 
 #' @usage mexRangeFit(x, which, quantiles = seq(0.5, 0.9, length = 9),
 #' start=c(.01, .01), R = 10, nPass=3, trace=10, margins = "laplace", constrain
-#' = TRUE, v = 10)
+#' = TRUE, v = 10, referenceMargin=NULL)
 #' @param x An object of class \code{\link{mex}} or \code{\link{migpd}}.
 #' @param which The variable on which to condition.
 #' @param quantiles A numeric vector specifying the quantiles of the marginal
@@ -29,6 +29,7 @@
 #' @param margins Argument passed to function \code{\link{mexDependence}}.
 #' @param constrain Argument passed to function \code{\link{mexDependence}}.
 #' @param v Argument passed to function \code{\link{mexDependence}}.
+#' @param referenceMargin Optional set of reference marginal distributions to use for marginal transformation if the data's own marginal distribution is not appropriate (for instance if only data for which one variable is large is available, the marginal distributions of the other variables will not be represented by the available data).  This object can be created from a combination of datasets and fitted GPDs using the function \code{makeReferenceMarginalDistribution}.
 #' @param \dots Further graphical parameters may be passed, which will be used
 #' for plotting.
 #' @return NULL.
@@ -50,7 +51,7 @@
 #' @export mexRangeFit
 mexRangeFit <-
 function (x, which, quantiles=seq(0.5,0.9,length=9), start=c(.01, .01), R=10, nPass=3, trace=10,
-          margins="laplace", constrain=TRUE, v=10){
+          margins="laplace", constrain=TRUE, v=10, referenceMargin=NULL){
   if (class(x) == "mex"){
     if( (!missing(margins))){
       warning("margins given, but already specified in 'mex' object.  Using 'mex' value")
@@ -64,10 +65,14 @@ function (x, which, quantiles=seq(0.5,0.9,length=9), start=c(.01, .01), R=10, nP
     if( (!missing(which))){
       warning("which given, but already specified in 'mex' object.  Using 'mex' value")
     }
+    if( (!missing(referenceMargin))){
+      warning("referenceMargin given, but already specified in 'mex' object.  Using 'mex' value")
+    }
     constrain <- x$dependence$constrain
     v <- x$dependence$v
     which <- x$dependence$which
     margins <- x$dependence$margins
+    referenceMargin <- x$referenceMargin
     x <- x[[1]]
   } else {
     if (class(x) != "migpd"){
@@ -79,13 +84,13 @@ function (x, which, quantiles=seq(0.5,0.9,length=9), start=c(.01, .01), R=10, nP
     }
   }
 
-  ests <- lapply(quantiles, function(qu, which, x, margins, start, constrain=constrain, v=v)
-                                     mexDependence(x=x, which=which, dqu=qu, margins = margins, start=start, constrain=constrain, v=v),
-                 which=which, x=x, margins = margins[[1]], start=start, constrain=constrain, v=v)
+  ests <- lapply(quantiles, function(qu, which, x, margins, start, constrain=constrain, v=v, ...)
+                                     mexDependence(x=x, which=which, dqu=qu, margins = margins, start=start, constrain=constrain, v=v,),
+                 which=which, x=x, margins = margins[[1]], start=start, constrain=constrain, v=v, referenceMargin=referenceMargin)
 
-  boot <- lapply(ests, function(X, R, nPass, trace)
-                                bootmex(x=X, R=R, nPass=nPass, trace=trace),
-                 R=R, nPass=nPass, trace=trace)
+  boot <- lapply(ests, function(X, R, nPass, trace, ...)
+                                bootmex(x=X, R=R, nPass=nPass, trace=trace, referenceMargin=referenceMargin),
+                 R=R, nPass=nPass, trace=trace, referenceMargin=referenceMargin)
 
   res <- list(ests=ests,boot=boot,quantiles=quantiles)
   oldClass(res) <- "mexRangeFit"

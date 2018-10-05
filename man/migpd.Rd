@@ -4,13 +4,12 @@
 \alias{ggplot.migpd}
 \alias{migpd}
 \alias{plot.migpd}
-\alias{ggplot.migpd}
-\alias{plot.migpd}
 \title{Fit multiple independent generalized Pareto models}
 \usage{
-\method{ggplot}{migpd}(data, mapping = NULL, main = c("Probability plot",
-  "Quantile plot", "Return level plot", "Histogram and density"),
-  xlab = rep(NULL, 4), nsim = 1000, alpha = 0.05, ..., environment)
+\method{ggplot}{migpd}(data, mapping = NULL,
+  main = c("Probability plot", "Quantile plot", "Return level plot",
+  "Histogram and density"), xlab = rep(NULL, 4), nsim = 1000,
+  alpha = 0.05, ..., environment)
 
 migpd(data, mth, mqu, penalty = "gaussian", maxit = 10000, trace = 0,
   verbose = FALSE, priorParameters = NULL)
