@@ -2,8 +2,7 @@
 #' @include gpd.info.R
 #' @include gpd.sandwich.R
 #' @export gpd
-NULL
-
+#' @aliases evm
 gpd <- texmexFamily(name = 'GPD',
                    log.lik = function(data, th, ...) {
                                y <- data$y
@@ -60,8 +59,8 @@ gpd <- texmexFamily(name = 'GPD',
                              }
                              out
                     }, # Close delta
-                    density = function(n, param, model){
-                                dgpd(n, exp(c(param[, 1])), c(param[, 2]), u=model$threshold)
+                    density = function(n, param, model, log.d=FALSE){
+                                dgpd(n, exp(c(param[, 1])), c(param[, 2]), u=model$threshold, log.d=log.d)
                     },
 
                     rng = function(n, param, model){
@@ -75,4 +74,31 @@ gpd <- texmexFamily(name = 'GPD',
                     }
 )
 
+#' @export gpdIntCensored
+#' @aliases evm
+gpdIntCensored <- texmexFamily(name = 'gpdIntCensored',
+							   log.lik= function (data, th, dp=2, ...) 
+							   {
+							   	y <- data$y
+							   	X.phi <- data$D$phi
+							   	X.xi <- data$D$xi
+							   	n.phi <- ncol(X.phi)
+							   	n.end <- n.phi + ncol(X.xi)
+							   	function(param) {
+							   		stopifnot(length(param) == n.end)
+							   		phi <- X.phi %*% param[1:n.phi]
+							   		xi <- X.xi %*% param[(1 + n.phi):n.end]
+							   		sum(log(pgpd(y+(10^(-dp))/2,exp(phi),xi,u=th) - pgpd(y-(10^(-dp))/2,exp(phi),xi,u=th)))
+							   	}
+							   },
+							   start=gpd$start,
+							   resid=gpd$resid,
+							   param=gpd$param,
+							   rl=gpd$rl,
+							   delta=gpd$delta,
+							   endpoint=gpd$endpoint,
+							   density=gpd$density,
+							   rng=gpd$rng,
+							   prob=gpd$prob,
+							   quant=gpd$quant)
 

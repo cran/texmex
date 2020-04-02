@@ -9,7 +9,7 @@
 \alias{print.evmBoot}
 \title{Bootstrap an evmOpt fit}
 \usage{
-evmBoot(o, R=1000, trace=100, cores=NULL, theCall)
+evmBoot(o, R=1000, trace=100, cores=NULL, export=NULL, theCall)
 \method{summary}{evmBoot}(object,...)
 \method{plot}{evmBoot}(x,col=4,border=NULL,...)
 \method{coef}{evmBoot}(object,...)
@@ -26,6 +26,10 @@ evmBoot(o, R=1000, trace=100, cores=NULL, theCall)
 \item{cores}{The number of coresto use when bootstrapping. Defaults
 to \code{cores=NULL} and the function guesses how many cores
 are available and uses them all.}
+
+\item{export}{Character vector of names of variables to export. See the
+help file for \code{parallel::export}. Defaults to \code{export = NULL}
+and most users will never need to use it.}
 
 \item{theCall}{(for internal use)}
 

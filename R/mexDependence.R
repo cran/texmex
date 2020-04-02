@@ -1,9 +1,9 @@
 #' Estimate the dependence parameters in a conditional multivariate extreme
 #' values model
-#' 
+#'
 #' Estimate the dependence parameters in a conditional multivariate extreme
 #' values model using the approach of Heffernan and Tawn, 2004.
-#' 
+#'
 #' Estimates the extremal dependence structure of the data in \code{x}.  The
 #' precise nature of the estimation depends on the value of \code{margins}.  If
 #' \code{margins="laplace"} (the default) then dependence parameters a and b
@@ -15,7 +15,7 @@
 #' a=0 and b is negative, parameters c and d are estimated (this is the case of
 #' negative dependence). Otherwise c and d will be fixed at zero (this is the
 #' case of positive dependence).
-#' 
+#'
 #' If \code{margins="laplace"} then the option of constrained parameter
 #' estimation is available by setting argument \code{constrain=TRUE}.  The
 #' default is to constrain the values of the parameters
@@ -28,7 +28,7 @@
 #' Heffernan and Tawn (2004).  The constraint brings with it some performance
 #' issues for the optimiser used to estimate the dependence parameters, in
 #' particular sensitivity to choice of starting value which we describe now.
-#' 
+#'
 #' The dependence parameter estimates returned by this function can be
 #' particularly sensitive to the choice of starting value used for the
 #' optimisation.  This is especially true when \code{margins="laplace"} and
@@ -41,7 +41,7 @@
 #' the argument \code{PlotLikRange} to focus on the region containing the
 #' surface maximum.  See an example below which illustrates the use of this
 #' diagnostic.
-#' 
+#'
 #' @usage mexDependence(x, which, dqu, margins="laplace",
 #'     constrain=TRUE, v = 10, maxit=1000000, start=c(.01, .01),
 #'     marTransform="mixture", referenceMargin = NULL, nOptim = 1,
@@ -126,7 +126,6 @@
 #' @param PlotLikTitle Used only if \code{PlotLikDo=TRUE}.  Character
 #'     string.  Optional title added to the profile log-likelihood
 #'     surface plot.
-#' @param ... Further arguments to be passed to methods.
 #' @return An object of class \code{mex} which is a list containing
 #'     the following three objects: \item{margins}{An object of class
 #'     \code{\link{migpd}}.} \item{dependence}{An object of class
@@ -138,36 +137,36 @@
 #' @references J. E. Heffernan and J. A. Tawn, A conditional approach
 #'     for multivariate extreme values, Journal of the Royal
 #'     Statistical society B, 66, 497 -- 546, 2004.
-#' 
+#'
 #' C. Keef, I. Papastathopoulos and J. A. Tawn.  Estimation of the conditional
 #' distribution of a multivariate variable given that one of its components is
 #' large: Additional constraints for the Heffernan and Tawn model, Journal of
 #' Multivariate Analysis, 115, 396 -- 404, 2013
 #' @keywords models multivariate
 #' @examples
-#' 
+#'
 #' data(winter)
 #' mygpd <- migpd(winter , mqu=.7, penalty="none")
 #' mexDependence(mygpd , which = "NO", dqu=.7)
-#' 
+#'
 #' # focus on 2-d example with parameter estimates on boundary of constrained parameter space:
 #' NO.NO2 <- migpd(winter[,2:3] , mqu=.7, penalty="none")
-#' 
+#'
 #' # starting value gives estimate far from true max:
 #' mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.01,0.01),
 #'               PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"))
-#' 
+#'
 #' # zoom in on plotting region containing maximum:
 #' mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.01,0.01),
-#'               PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"), 
+#'               PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"),
 #'               PlotLikRange = list(a=c(0,0.8),b=c(-0.2,0.6)))
-#' 
+#'
 #' # try different starting value:
 #' mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.1,0.1),
-#'               PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"), 
+#'               PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"),
 #'               PlotLikRange = list(a=c(0,0.8),b=c(-0.2,0.6)))
-#' 
-#' 
+#'
+#'
 #' @export mexDependence
 `mexDependence` <-
     function (x, which, dqu, margins = "laplace",
@@ -175,10 +174,9 @@
               start=c(.01, .01), marTransform="mixture",
               referenceMargin=NULL, nOptim = 1,
               PlotLikDo=FALSE, PlotLikRange=list(a=c(-1,1),b=c(-3,1)),
-              PlotLikTitle=NULL)
-{
+              PlotLikTitle=NULL){
    theCall <- match.call()
-   if (class(x) != "migpd")
+   if (!inherits(x, "migpd"))
        stop("you need to use an object created by migpd")
 
    margins <- list(casefold(margins),
@@ -191,7 +189,7 @@
 
    x <- mexTransform(x, margins = margins, method = marTransform, r=referenceMargin)
    x$referenceMargin <- referenceMargin
-   
+
    if (margins[[1]] == "gumbel" & constrain){
      warning("With Gumbel margins, you can't constrain, setting constrain=FALSE")
      constrain <- FALSE
@@ -207,7 +205,7 @@
        which <- match(which, dimnames(x$transformed)[[2]])
 
    if (missing(dqu)) {
-       warning("Assuming same quantile for dependence thesholding as was used\n     to fit corresponding marginal model...\n")
+       message("Assuming same quantile for dependence thesholding as was used\n     to fit corresponding marginal model...\n")
        dqu <- x$mqu[which]
    }
    dth <- quantile(x$transformed[, which], dqu)
@@ -221,7 +219,7 @@
 
    if (missing(start)){
      start <- c(.01, .01)
-   } else if(class(start) == "mex"){
+   } else if(inherits(start, "mex")){
      start <- start$dependence$coefficients[1:2,]
    }
 
@@ -251,7 +249,7 @@
               control=list(maxit=maxit),
               yex = yex[wh], ydep = X[wh], constrain=constrain, v=v, aLow=aLow), silent=TRUE)
 
-     if (class(o) == "try-error"){
+     if (inherits(o, "try-error")){
         warning("Error in optim call from mexDependence")
         o <- as.list(o)
         o$par <- rep(NA, 6)
@@ -267,7 +265,7 @@
            o <- try(optim(par=o$par, fn=Qpos,
                     control=list(maxit=maxit),
                     yex = yex[wh], ydep = X[wh], constrain=constrain, v=v, aLow=aLow), silent=TRUE)
-           if (class(o) == "try-error"){
+           if (inherits(o, "try-error")){
              warning("Error in optim call from mexDependence")
              o <- as.list(o)
              o$par <- rep(NA, 6)
@@ -323,7 +321,7 @@
                    upper=c(1, 1-10^(-10), Inf, 1-10^(-10), Inf, Inf),
                    yex = yex[wh], ydep = X[wh]), silent=TRUE)
 
-          if (class(o) == "try-error" || o$convergence != 0) {
+          if (inherits(o, "try-error") || o$convergence != 0) {
              warning("Non-convergence in mexDependence")
              o <- as.list(o)
              o$par <- rep(NA, 6)
@@ -341,7 +339,7 @@
 
    res <- sapply(1:length(dependent),
                  function(X,dat,yex,wh,aLow,margins,constrain,v,maxit,start)qfun(dat[,X],yex,wh,aLow,margins,constrain,v,maxit,start[,X]),
-                 dat=as.matrix(x$transformed[, dependent]), yex=yex, wh=wh, aLow=aLow, margins=margins[[1]], 
+                 dat=as.matrix(x$transformed[, dependent]), yex=yex, wh=wh, aLow=aLow, margins=margins[[1]],
                  constrain=constrain, v=v, maxit=maxit, start=start)
 
    loglik <- -res[7,]
@@ -367,7 +365,7 @@
    }
    z <- try(sapply(1:(dim(gdata)[[2]]), tfun, data = gdata,
        yex = yex[wh], a = res[1, ], b = res[2, ], cee = res[3, ], d = res[4, ]))
-   if (class(z) %in% c("Error", "try-error")) {
+   if (inherits(z, c("Error", "try-error"))) {
        z <- matrix(nrow = 0, ncol = dim(x$data)[[2]] - 1)
    }
    else if (!is.array(z)) {

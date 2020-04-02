@@ -1,19 +1,19 @@
 #' Fit multiple independent generalized Pareto models
-#' 
+#'
 #' Fit multiple independent generalized Pareto models as the first step of
 #' conditional multivariate extreme values modelling following the approach of
 #' Heffernan and Tawn, 2004.
-#' 
+#'
 #' The parameters in the generalized Pareto distribution are estimated for each
 #' column of the data in turn, independently of all other columns. Note,
 #' covariate modelling of GPD parameters is not supported.
-#' 
+#'
 #' Maximum likelihood estimation often fails with generalized Pareto
 #' distributions because of the likelihood becoming flat (see, for example,
 #' Hosking et al, 1985).  Therefore the function allows penalized likelihood
 #' estimation, which is the same as maximum a posteriori estimation from a
 #' Bayesian point of view.
-#' 
+#'
 #' By default quadratic penalization is used, corresponding to using a Gaussian
 #' prior. If no genuine prior information is available, the following argument
 #' can be used. If xi = -1, the generalized Pareto distribution corresponds to
@@ -25,21 +25,28 @@
 #' standard deviation 100 will often be vague.  If a Gaussian penalty is
 #' specified but no parameters are given, the function will assume such
 #' indpendent priors.
-#' 
+#'
 #' Note that internally the function works with log(sigma), not sigma. The
 #' reasons are that quadratic penalization makes more sense for phi=log(sigma)
 #' than for sigma (because the distribution of log(sigma) will be more nearly
 #' symmetric), and because it was found to stabilize computations.
-#' 
+#'
 #' The associated \code{coef}, \code{print} and \code{summary} functions
 #' exponentiate the log(sigma) parameter to return results on the expected
 #' scale. If you are accessesing the parameters directly, however, take care to
 #' be sure what scale the results are on.
-#' 
+#'
 #' Threshold selection can be carried out with the help of functions
 #' \code{\link{mrl}} and \code{\link{gpdRangeFit}}.
-#' 
+#'
 #' @aliases migpd plot.migpd ggplot.migpd
+#' @note You are encourage to use the \code{mqu} argument and not \code{mth}.
+#'   If you use \code{mth}, the quantiles then need to be estimated. There
+#'   are, at the time of writing, 9 methods of estimating quantiles build into
+#'   the \code{quantile} function. Tiny differences can cause problems in
+#'   later stages of the analysis if functions try to simulate in an area
+#'   that is legitimate according to the numerical value of the threshold, but
+#'   not according to the estimated quantile.
 #' @param data A matrix or data.frame, each column of which is to be modelled.
 #' @param mth Marginal thresholds. Thresholds above which to fit the models.
 #' Only one of \code{mth} and \code{mqu} should be supplied. Length one (in
@@ -65,6 +72,10 @@
 #' the columns of \code{data}. If not provided, it defaults to independent
 #' priors being centred at zero, with variance 10000 for log(sigma) and 0.25
 #' for xi. See the details section.
+#' @param cov String, passed through to \code{evm}: how to estimate the covariance.
+#'   Defaults to \code{cov = "observed"}.
+#' @param family An object of class "texmexFamily". Should be either
+#'   \code{family = gpd} or \code{family = cgpd} and defaults to the first of those.
 #' @param x Object of class \code{migpd} as returned by function \code{migpd}.
 #' @param main Character vector of length four: titles for plots produced by
 #' \code{plot} and \code{ggplot} methods.
@@ -84,24 +95,25 @@
 #' @references J. E. Heffernan and J. A. Tawn, A conditional approach for
 #' multivariate extreme values, Journal of the Royal Statistical society B, 66,
 #' 497 -- 546, 2004
-#' 
+#'
 #' J. R. M. Hosking and J. R. Wallis, Parameter and quantile estimation for the
 #' genralized Pareto distribution, Technometrics, 29, 339 -- 349, 1987
 #' @keywords models multivariate
 #' @examples
-#' 
+#'
+#' \donttest{
 #' mygpd <- migpd(winter, mqu=.7, penalty = "none")
 #' mygpd
 #' summary(mygpd)
 #' plot(mygpd)
 #' g <- ggplot(mygpd)
-#' 
-#' 
+#' }
+#'
 #' @export migpd
 migpd <-
 function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
-   trace = 0, verbose=FALSE, priorParameters = NULL)
-{
+   trace = 0, verbose=FALSE, priorParameters = NULL, cov = "observed",
+   family = gpd){
    theCall <- match.call()
    if(is.null(colnames(data))){
     colnames(data) <- paste(rep("Column",ncol(data)),1:ncol(data),sep="")
@@ -111,6 +123,9 @@ function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
        stop("you must provide one of mth or mqu")
    if (!missing(mth) & !missing(mqu))
        stop("you must provide precisely one of mth or mqu")
+   if (!(family$name %in% c("GPD", "CGPD"))){
+     stop("family should be either gpd or cgpd")
+   }
    if (!missing(mth))
        mth <- rep(mth, length = d)
    if (!missing(mqu))
@@ -126,13 +141,13 @@ function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
        priorParameters <- vector("list", length = length(mth))
        for (i in 1:length(mth)) priorParameters[[i]] <- gp
        names(priorParameters) <- dimnames(data)[[2]]
-   }
-   else if (penalty %in% c("quadratic", "gaussian")) {
+   } else if (penalty %in% c("quadratic", "gaussian")) {
        nm <- names(priorParameters)
-       if (is.null(nm))
+       if (is.null(nm)){
            stop("priorParameters must be a named list")
-       else if (any(!is.element(nm, dimnames(data)[[2]])))
+       } else if (any(!is.element(nm, dimnames(data)[[2]]))){
            stop("the names of priorParameters must match the column names of the data")
+       }
    }
 
    wrapgpd <-function(i, x, mth, penalty, maxit, verbose, trace, priorParameters) {
@@ -144,7 +159,8 @@ function (data, mth, mqu, penalty = "gaussian", maxit = 10000,
        x <- c(x[, i])
        mth <- mth[i]
 
-       evm(x, th=mth, penalty=penalty, priorParameters=priorParameters, maxit=maxit, trace=trace)
+       evm(x, th=mth, penalty=penalty, priorParameters=priorParameters,
+           maxit=maxit, trace=trace, cov = cov, family = family)
        }
 
    modlist <- lapply(1:d, wrapgpd, x=data, penalty=penalty, mth=mth, verbose=verbose,

@@ -7,12 +7,33 @@
 \usage{
 evm(y, data, family = gpd, ...)
 
-\method{evm}{default}(y, data, family = gpd, th = -Inf, qu, ...,
-  penalty = NULL, prior = "gaussian", method = "optimize",
-  cov = "observed", start = NULL, priorParameters = NULL,
-  maxit = 10000, trace = NULL, iter = 40500, burn = 500,
-  thin = 4, proposal.dist = c("gaussian", "cauchy"), jump.cov,
-  jump.const = NULL, R = 1000, cores = NULL, verbose = TRUE)
+\method{evm}{default}(
+  y,
+  data,
+  family = gpd,
+  th = -Inf,
+  qu,
+  ...,
+  penalty = NULL,
+  prior = "gaussian",
+  method = "optimize",
+  cov = "observed",
+  start = NULL,
+  priorParameters = NULL,
+  maxit = 10000,
+  trace = NULL,
+  iter = 40500,
+  burn = 500,
+  thin = 4,
+  chains = 1,
+  proposal.dist = c("gaussian", "cauchy"),
+  jump.cov,
+  jump.const = NULL,
+  R = 1000,
+  cores = NULL,
+  export = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{y}{Either a numeric vector or the name of a variable in \code{data}.}
@@ -111,6 +132,10 @@ this case it defaults to \code{trace = 10000}.}
 \item{thin}{The degree of thinning of the resulting Markov chains. Defaults
 to 4 (one in every 4 steps is retained).}
 
+\item{chains}{The number of Markov chains to run. Defaults to 1. If you run
+more than 1, the function tries to figure out how to do it in parallel
+using as many cores as there are chains.}
+
 \item{proposal.dist}{The proposal distribution to use, either multivariate
 gaussian or a multivariate Cauchy.}
 
@@ -125,6 +150,11 @@ algorithm.  This is scaled by \code{jump.const}.}
 \item{cores}{The number of cores to use when bootstrapping. Defaults to
 \code{cores=NULL} and the function guesses how many cores are available and
 uses them all.}
+
+\item{export}{Character vector of names of objects to export if parallel
+processing is being used and you are using objects from outside of
+texmex. It it passed to \code{parallel::clusterExport} and used by
+\code{texmex::evmBoot}.}
 
 \item{verbose}{Whether or not to print progress to screen. Defaults to
 \code{verbose=TRUE}.}
@@ -208,7 +238,9 @@ distribution to be used is specified by passing an object of class
 The default \code{texmexFamily} object used by \code{evm} is \code{gpd}.
 Currently, the other \code{texmexFamily} objects available are \code{gev}
 which results in fitting a generalized extreme value (GEV) distribution to
-the data, and \code{egp3} which fits the extended generalized Pareto
+the data, \code{gpdIntCensored} which can be used to fit the GPD to data which has
+been rounded to a given numebr of decimal places by recognisiing the data as
+interval censored, and \code{egp3} which fits the extended generalized Pareto
 distribution version 3 of Papastathopoulos and Tawn (2013).
 
 See Coles (2001) for an introduction to extreme value modelling and the GPD
@@ -222,6 +254,7 @@ for \eqn{y \ge 0} and \eqn{1 + \xi y / \sigma \ge 0.}
 For the GEV model, we use:
 
 \deqn{P(Y \le y) = exp (-(1 + \xi (y - \mu) / \sigma) ^{-1/\xi})}
+
 
 In each case, the scale parameter is sigma (\eqn{\sigma}) and the shape
 parameter is xi (\eqn{\xi}). The GEV distribution also has location
@@ -271,10 +304,12 @@ by Yee and Stephenson (2007).
 }
 \examples{
 
-  mod <- evm(rain, th=30)
-  mod
-  par(mfrow=c(2, 2))
-  plot(mod)
+  \donttest{
+  #mod <- evm(rain, th=30)
+  #mod
+  #par(mfrow=c(2, 2))
+  #plot(mod)
+  }
 
   \donttest{
   mod <- evm(rain, th=30, method="sim")
@@ -282,9 +317,11 @@ by Yee and Stephenson (2007).
   plot(mod)
   }
 
+  \donttest{
   mod <- evm(SeaLevel, data=portpirie, family=gev)
   mod
   plot(mod)
+  }
 
   \donttest{
   mod <- evm(SeaLevel, data=portpirie, family=gev, method="sim")

@@ -104,8 +104,6 @@ missing, then \code{PlotLikDo} is set equal to TRUE.}
 \item{PlotLikTitle}{Used only if \code{PlotLikDo=TRUE}.  Character
 string.  Optional title added to the profile log-likelihood
 surface plot.}
-
-\item{...}{Further arguments to be passed to methods.}
 }
 \value{
 An object of class \code{mex} which is a list containing
@@ -172,12 +170,12 @@ mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.01,0.01),
 
 # zoom in on plotting region containing maximum:
 mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.01,0.01),
-              PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"), 
+              PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"),
               PlotLikRange = list(a=c(0,0.8),b=c(-0.2,0.6)))
 
 # try different starting value:
 mexDependence(NO.NO2, which = "NO",dqu=0.7,start=c(0.1,0.1),
-              PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"), 
+              PlotLikDo=TRUE,PlotLikTitle=c("NO2 | NO"),
               PlotLikRange = list(a=c(0,0.8),b=c(-0.2,0.6)))
 
 

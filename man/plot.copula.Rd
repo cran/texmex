@@ -13,9 +13,9 @@
 before plotting. Defaults to \code{jitter. = FALSE}.}
 
 \item{jitter.factor}{How much jittering to use. Defaults to
-\code{jitter.factor = 1.}}
+\code{jitter.factor = 1}.}
 
-\item{...}{Further arguments to be passed to plot method.}
+\item{...}{Other arguments to pass through to \code{plot}.}
 }
 \description{
 Plot copulas

@@ -10,7 +10,9 @@
 #' The default \code{texmexFamily} object used by \code{evm} is \code{gpd}.
 #' Currently, the other \code{texmexFamily} objects available are \code{gev}
 #' which results in fitting a generalized extreme value (GEV) distribution to
-#' the data, and \code{egp3} which fits the extended generalized Pareto
+#' the data, \code{gpdIntCensored} which can be used to fit the GPD to data which has
+#' been rounded to a given numebr of decimal places by recognisiing the data as
+#' interval censored, and \code{egp3} which fits the extended generalized Pareto
 #' distribution version 3 of Papastathopoulos and Tawn (2013).
 #'
 #' See Coles (2001) for an introduction to extreme value modelling and the GPD
@@ -138,6 +140,9 @@
 #' @param burn The number of initial steps to be discarded. Defaults to 500.
 #' @param thin The degree of thinning of the resulting Markov chains. Defaults
 #' to 4 (one in every 4 steps is retained).
+#' @param chains The number of Markov chains to run. Defaults to 1. If you run
+#'   more than 1, the function tries to figure out how to do it in parallel
+#'   using as many cores as there are chains.
 #' @param proposal.dist The proposal distribution to use, either multivariate
 #' gaussian or a multivariate Cauchy.
 #' @param jump.cov Covariance matrix for proposal distribution of Metropolis
@@ -150,6 +155,10 @@
 #' @param cores The number of cores to use when bootstrapping. Defaults to
 #' \code{cores=NULL} and the function guesses how many cores are available and
 #' uses them all.
+#' @param export Character vector of names of objects to export if parallel
+#'   processing is being used and you are using objects from outside of
+#'   texmex. It it passed to \code{parallel::clusterExport} and used by
+#'   \code{texmex::evmBoot}.
 #' @return If \code{method = "optimize"}, an object of class \code{evmOpt}:
 #'
 #' \item{call}{The call to \code{evmSim} that produced the object.}
@@ -243,10 +252,12 @@
 #' @keywords models
 #' @examples
 #'
-#'   mod <- evm(rain, th=30)
-#'   mod
-#'   par(mfrow=c(2, 2))
-#'   plot(mod)
+#'   \donttest{
+#'   #mod <- evm(rain, th=30)
+#'   #mod
+#'   #par(mfrow=c(2, 2))
+#'   #plot(mod)
+#'   }
 #'
 #'   \donttest{
 #'   mod <- evm(rain, th=30, method="sim")
@@ -254,9 +265,11 @@
 #'   plot(mod)
 #'   }
 #'
+#'   \donttest{
 #'   mod <- evm(SeaLevel, data=portpirie, family=gev)
 #'   mod
 #'   plot(mod)
+#'   }
 #'
 #'   \donttest{
 #'   mod <- evm(SeaLevel, data=portpirie, family=gev, method="sim")
@@ -284,10 +297,10 @@ function (y, data, family=gpd, th= -Inf, qu,
           method = "optimize", cov="observed",
           start = NULL, priorParameters = NULL,
           maxit = 10000, trace=NULL,
-          iter = 40500, burn=500, thin = 4,
+          iter = 40500, burn=500, thin = 4, chains = 1,
           proposal.dist = c("gaussian", "cauchy"),
           jump.cov, jump.const=NULL,
-          R=1000, cores=NULL, verbose=TRUE) {
+          R=1000, cores=NULL, export=NULL, verbose=TRUE) {
 
     modelParameters <- texmexParameters(theCall, family,...)
 
@@ -346,11 +359,12 @@ function (y, data, family=gpd, th= -Inf, qu,
                     prop.dist=proposal.dist,
                     jump.const=jump.const, jump.cov=jump.cov,
                     iter=iter, start=start, verbose=verbose,
-                    thin=thin, burn=burn,
+                    thin=thin, burn=burn, chains=chains,
+                    export=export,
                     trace=trace, theCall)
     } # Close else
     else if (method == "b"){
-        o <- evmBoot(o, R=R, cores=cores)
+        o <- evmBoot(o, R=R, cores=cores, export=export)
     }
 
     o

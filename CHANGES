@@ -122,4 +122,20 @@ Changes from version 2.4
    from conditioning varibale in mex fitting.
 6. Various improvements to documentation.
 
+---------------------------------- Version 2.4.4 -----------------------------------
 
+Changes from version 2.4.2
+
+1. Bug fixes in gpdFitRange: calculation of log-scale parameter and also standard error 
+2. gpdIntCensored family added
+3. glo (generalised logistic) family added
+4. Generic cv function and cv.evmOpt added for finding shape parameter by cross-validation.
+5. WAIC added
+
+---------------------------------- Version 2.4.5 -----------------------------------
+
+Changes from version 2.4.4
+
+1. New 'chains' argument added to evmSim. Can now run multiple Markov chains in
+parallel.
+.

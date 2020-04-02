@@ -6,17 +6,40 @@
 \alias{plot.migpd}
 \title{Fit multiple independent generalized Pareto models}
 \usage{
-\method{ggplot}{migpd}(data, mapping = NULL,
+\method{ggplot}{migpd}(
+  data,
+  mapping = NULL,
   main = c("Probability plot", "Quantile plot", "Return level plot",
-  "Histogram and density"), xlab = rep(NULL, 4), nsim = 1000,
-  alpha = 0.05, ..., environment)
+    "Histogram and density"),
+  xlab = rep(NULL, 4),
+  nsim = 1000,
+  alpha = 0.05,
+  ...,
+  environment
+)
 
-migpd(data, mth, mqu, penalty = "gaussian", maxit = 10000, trace = 0,
-  verbose = FALSE, priorParameters = NULL)
+migpd(
+  data,
+  mth,
+  mqu,
+  penalty = "gaussian",
+  maxit = 10000,
+  trace = 0,
+  verbose = FALSE,
+  priorParameters = NULL,
+  cov = "observed",
+  family = gpd
+)
 
-\method{plot}{migpd}(x, main = c("Probability plot", "Quantile plot",
-  "Return level plot", "Histogram and density"), xlab = rep(NULL, 4),
-  nsim = 1000, alpha = 0.05, ...)
+\method{plot}{migpd}(
+  x,
+  main = c("Probability plot", "Quantile plot", "Return level plot",
+    "Histogram and density"),
+  xlab = rep(NULL, 4),
+  nsim = 1000,
+  alpha = 0.05,
+  ...
+)
 }
 \arguments{
 \item{data}{A matrix or data.frame, each column of which is to be modelled.}
@@ -67,6 +90,12 @@ the columns of \code{data}. If not provided, it defaults to independent
 priors being centred at zero, with variance 10000 for log(sigma) and 0.25
 for xi. See the details section.}
 
+\item{cov}{String, passed through to \code{evm}: how to estimate the covariance.
+Defaults to \code{cov = "observed"}.}
+
+\item{family}{An object of class "texmexFamily". Should be either
+\code{family = gpd} or \code{family = cgpd} and defaults to the first of those.}
+
 \item{x}{Object of class \code{migpd} as returned by function \code{migpd}.}
 }
 \value{
@@ -114,14 +143,24 @@ be sure what scale the results are on.
 Threshold selection can be carried out with the help of functions
 \code{\link{mrl}} and \code{\link{gpdRangeFit}}.
 }
+\note{
+You are encourage to use the \code{mqu} argument and not \code{mth}.
+  If you use \code{mth}, the quantiles then need to be estimated. There
+  are, at the time of writing, 9 methods of estimating quantiles build into
+  the \code{quantile} function. Tiny differences can cause problems in
+  later stages of the analysis if functions try to simulate in an area
+  that is legitimate according to the numerical value of the threshold, but
+  not according to the estimated quantile.
+}
 \examples{
 
+\donttest{
 mygpd <- migpd(winter, mqu=.7, penalty = "none")
 mygpd
 summary(mygpd)
 plot(mygpd)
 g <- ggplot(mygpd)
-
+}
 
 }
 \references{

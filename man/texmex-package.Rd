@@ -10,9 +10,8 @@ Extreme values modelling, including the conditional multivariate approach of
 Heffernan and Tawn (2004).
 }
 \details{
-\tabular{ll}{ Package: \tab texmex\cr Type: \tab Package\cr Version: \tab
-2.3\cr Date: \tab 2014-03-03\cr License: \tab GPL (>=2) | BSD\cr } The
-packages was originally called `texmex' for Threshold EXceedances and
+The
+package was originally called `texmex' for Threshold EXceedances and
 Multivariate EXtremes. However, it is no longer the case that only threshold
 excess models are implemented, so the `tex' bit doesn't make sense. So, the
 package is called `texmex' because it used to be called `texmex'.
@@ -93,7 +92,7 @@ plot(balt3)
 
 # Get some simulated values for dose D
 
-#DParam <- predict(balt3,type="lp",newdata=data.frame(ndose=4),all=TRUE)$obj$link[[1]]
+DParam <- predict(balt3,type="lp",newdata=data.frame(ndose=4),all=TRUE)$obj$link[[1]]
 
 simD <- rgpd(nrow(DParam), sigma=exp(DParam[,"phi"]), xi=DParam[,"xi"], u=quantile(alt, .7))
 
@@ -119,7 +118,7 @@ C.A.T Ferro and J. Segers, Inference for Clusters of Extreme Values, Journal
 of the Royal Statistical society B, 65, 545 -- 556, 2003.
 }
 \author{
-Harry Southworth, Janet E. Heffernan
+Harry Southworth, Janet E. Heffernan, Paul D. Metcalfe
 
 Maintainer: Harry Southworth <harry.southworth@gmail.com>
 
