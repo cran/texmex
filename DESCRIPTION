@@ -1,8 +1,8 @@
 Package: texmex
 Type: Package
 Title: Statistical Modelling of Extreme Values
-Version: 2.4.5
-Date: 2020-04-02
+Version: 2.4.7
+Date: 2020-06-10
 Authors@R: c(person("Harry", "Southworth", role=c("aut", "cre"),
                     email="harry.southworth@gmail.com"),
              person(c("Janet", "E."), "Heffernan", role="aut"),
@@ -76,6 +76,6 @@ Collate: 'AIC.evm.R' 'Dcond.R' 'Profile_likelihood_HT_unc.R'
         'texmexWorkers.R' 'thinAndBurn.evm.sim.R' 'u2gpd.R'
         'weibull.info.R' 'weibull.R'
 NeedsCompilation: yes
-Packaged: 2020-04-02 10:33:41 UTC; harry
+Packaged: 2020-06-10 07:32:22 UTC; harry
 Repository: CRAN
-Date/Publication: 2020-04-02 12:20:02 UTC
+Date/Publication: 2020-06-12 10:30:02 UTC
