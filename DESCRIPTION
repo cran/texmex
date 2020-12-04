@@ -1,8 +1,8 @@
 Package: texmex
 Type: Package
 Title: Statistical Modelling of Extreme Values
-Version: 2.4.7
-Date: 2020-06-10
+Version: 2.4.8
+Date: 2020-12-03
 Authors@R: c(person("Harry", "Southworth", role=c("aut", "cre"),
                     email="harry.southworth@gmail.com"),
              person(c("Janet", "E."), "Heffernan", role="aut"),
@@ -33,8 +33,8 @@ Description: Statistical extreme value modelling of threshold excesses, maxima
     threshold selection and to diagnose estimation convergence.
 License: GPL (>= 2)
 Depends: mvtnorm, ggplot2, stats
-Suggests: MASS, gridExtra, parallel, lattice, knitr, dplyr, tidyr,
-        testthat, devtools, survival, ismev
+Suggests: MASS, gridExtra, parallel, lattice, knitr, rmarkdown, dplyr,
+        tidyr, testthat, devtools, survival, ismev
 Imports: Rcpp (>= 0.12.18)
 LinkingTo: Rcpp
 LazyLoad: yes
@@ -76,6 +76,6 @@ Collate: 'AIC.evm.R' 'Dcond.R' 'Profile_likelihood_HT_unc.R'
         'texmexWorkers.R' 'thinAndBurn.evm.sim.R' 'u2gpd.R'
         'weibull.info.R' 'weibull.R'
 NeedsCompilation: yes
-Packaged: 2020-06-10 07:32:22 UTC; harry
+Packaged: 2020-12-04 10:32:10 UTC; harry
 Repository: CRAN
-Date/Publication: 2020-06-12 10:30:02 UTC
+Date/Publication: 2020-12-04 12:20:03 UTC

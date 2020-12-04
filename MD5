@@ -1,6 +1,6 @@
-3f4cdd4d103efb4a7c78fd18bd605e39 *CHANGES
-ddc836e854fede9cd74c5dfe3f30519d *DESCRIPTION
-bede4ceae43594eaf223f3b8565e451a *NAMESPACE
+6661d94a51400415f757a9846e553a85 *CHANGES
+26b34939377aeb04bc96661db183ec8c *DESCRIPTION
+a61b544c01a7b4d2b79c69188eb208a2 *NAMESPACE
 429b1880791d594fd80c21fc82587232 *R/AIC.evm.R
 23abcfd2a4978e588115d827936d81ee *R/Dcond.R
 898f5b16bfdb2d80baa01eee3393ff75 *R/Profile_likelihood_HT_unc.R
@@ -39,14 +39,14 @@ a24f30884c4748c67fa939a86998ddf3 *R/ggplot.boot.R
 df73f75a3813fa3f22a83abf7f8d1138 *R/ggplot.mex.R
 93139cab5a7b917aa286112e65ccae9e *R/ggplot.migpd.R
 4e153f3a8848c1cd8f3bba360dcf1cbf *R/ggplot.predict.R
-1ad563bf83f41fafe34828824699bcdc *R/ggplot.thresh.R
-68db415a16d283c1cd43948d49f1bf89 *R/glo.R
+9eb9e6584dff3dc805734e1dc531fdc0 *R/ggplot.thresh.R
+2748ce2cb74ad96e078b3e4137d89a5a *R/glo.R
 55c484ad138cf2c719a2480bc0ce4bc1 *R/globalVariables.R
 20d20d8b3fd83e60d13ba548cca3be63 *R/gpd.R
 faee36f68cc50364092cc2c35c8b30bc *R/gpd.info.R
 5b0cda7d35781b62444d161774b680e2 *R/gpd.sandwich.R
 ecddefb94af2d7b70e0b8a2864e0664e *R/gpdProfileLikRetLevels.R
-ff1bb0ec39c71c015e2cafe640003f5c *R/gpdRangeFit.R
+efe5a0ce7a64672393beb83d93c24d3b *R/gpdRangeFit.R
 daf04d1db89cef2ab68dba87e1e0097e *R/gumbel.R
 6e7f2802b1a951d35ed4cdb4d93ce1d5 *R/hist.evm.R
 a0c0fd8188a8ca5ea2f4f93dbf4417aa *R/initial_posneg.R
@@ -110,7 +110,7 @@ af56023200bda07d211263b606028274 *R/thinAndBurn.evm.sim.R
 4bc7b59d3ca176abc824c140c85f9a87 *R/weibull.R
 91fc22a4fb66ea3183ff678964b28d46 *R/weibull.info.R
 17195805948eb845f5fd02d4f39774af *README.md
-6a3db842e308da6c76fb528009efdb62 *build/vignette.rds
+e5af1ab2ffa465d3c3ab26db7c36659f *build/vignette.rds
 c453f866858249b764a659670fd13d43 *data/liver.rda
 5ab79c46d81265ecd998b35f9f6c0bc9 *data/nidd.rda
 a2ad6fd4504b7c286cf43a52c2d7fc00 *data/portpirie.rda
@@ -121,7 +121,7 @@ e4434a52702b871b3c9b6ac97d480c09 *data/winter.rda
 183e59edceb9dc2c07ac2ffc00a29505 *inst/CITATION
 4b73eb641175b24140225b50974d32e2 *inst/doc/texmexVignettes.R
 a6d4843d329151d1008baa314d29e4f2 *inst/doc/texmexVignettes.Rmd
-59fe79872684338e8f335c764c7b2bcd *inst/doc/texmexVignettes.html
+2dbc325d4dd230714ec92c89b76b744f *inst/doc/texmexVignettes.html
 004534dc617ffcf15591bca47afb290c *man/AIC.evmOpt.Rd
 db5295cc7af9f8b76ee74ba5c8b92791 *man/JointExceedanceCurve.Rd
 b28ae426def02f405334b4e435ac9c89 *man/MCS.Rd
